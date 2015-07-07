@@ -1,104 +1,90 @@
 <head>
-	<title>Allocation-tool</title>
+    <title>Allocation-tool</title>
 </head>
 
 <body>
-	{{> header}}
-
-	{{> main}}
+    {{> header}} {{> main}}
 
 </body>
 
 <template name="header">
-  <header>
-  	<img src="/img/logo.png" alt="logo ARR Craib">
-  </header>
+    <header>
+        <img src="/img/logo.png" alt="logo ARR Craib">
+    </header>
 </template>
 
 <template name="main">
-  <div id="main">
-  	{{> leftPart}}
-
-  	{{> middlePart}}
-
-  	{{> rightPart}}  
-  </div>
+    <div id="main">
+        {{> leftPart}} {{> middlePart}} {{> rightPart}}
+    </div>
 </template>
 
 <template name="leftPart">
-	<div id="left">
-		<ul>
-			{{#each trucks}}
-				{{> truckItem}}
-			{{/each}}
-		</ul>
-	</div>
+    <div id="left">
+        <ul>
+            {{#each trucks}} {{> truckItem}} {{/each}}
+        </ul>
+    </div>
 </template>
 
 <template name="middlePart">
-	<div id="center">
-		{{> map}}
-	</div>
+    <div id="center">
+        {{> map}}
+    </div>
 </template>
 
 <template name="rightPart">
-	<div id="right">
-		<div id="selectedTruck">
-			{{> selectedTruck}}
-		</div>
-		
-		<ul id="jobList">
-			{{#each jobs}}
-				{{> jobItem}}
-			{{/each}}
-		</ul>
-	</div>
+    <div id="right">
+        <div id="selectedTruck">
+            {{> selectedTruck}}
+        </div>
+
+        <ul id="jobList">
+            {{#each jobs}} {{> jobItem}} {{/each}}
+        </ul>
+    </div>
 </template>
 
 <template name="truckItem">
-	<li class="truckItem">
-		<h3>{{id}}</h3>
-		<span><b>Truck : </b>{{name}}</span>
-		<span><b>Location : </b>{{location.name}}</span>
-		<span><b>Driver : </b>{{driver}}</span>
-		<span><b>Trailer : </b>{{trailer}}</span>
-	</li>
+    <li class="truckItem">
+        <h3>{{id}}</h3>
+        <span><b>Truck : </b>{{name}}</span>
+        <span><b>Location : </b>{{location.name}}</span>
+        <span><b>Driver : </b>{{driver}}</span>
+        <span><b>Trailer : </b>{{trailer}}</span>
+    </li>
 </template>
 
 <template name="map">
-	<div id="map">
-		<div id="map-canvas">
-			{{> googleMap name="map" options=mapOptions}}
-		</div>
-	</div>
+    <div id="map">
+        <div id="map-canvas">
+            {{> googleMap name="map" options=mapOptions}}
+        </div>
+    </div>
 </template>
 
 <template name="selectedTruck">
-	{{#if selectedTruck}}
-		<h3>{{selectedTruck.id}}</h3>
-		<span><b>Truck : </b>{{selectedTruck.name}}</span>
-		<span><b>Location : </b>{{selectedTruck.location.name}}</span>
-		<span><b>Driver : </b>{{selectedTruck.driver}}</span>
-		<span><b>Trailer : </b>{{selectedTruck.trailer}}</span>
-	{{/if}}
+    {{#if selectedTruck}}
+    <h3>{{selectedTruck.id}}</h3>
+    <span><b>Truck : </b>{{selectedTruck.name}}</span>
+    <span><b>Location : </b>{{selectedTruck.location.name}}</span>
+    <span><b>Driver : </b>{{selectedTruck.driver}}</span>
+    <span><b>Trailer : </b>{{selectedTruck.trailer}}</span> {{/if}}
 </template>
 
 <template name="jobItem">
-	<li class="jobItem">
-		{{#if isRecommended }}
-			<i class="fa fa-star" style="color: #cccc00;"></i> 
-		{{/if}}
-		<b>{{type}}</b>
-		<h3>Job ID: {{id}}</h3>
-		{{#if isRefSet}}
-			<span><b> ARRC ref: </b>{{ref}}</span>
-		{{/if}}
-		<span><b>Trailer: </b>{{trailer.id}} - {{trailer.name}}</span>
-		<span><b>Truck: </b>{{truck.id}} -  {{truck.name}}</span>
-		<span>{{distance}} Km from truck position</span>
-		<span><b>Collect from: </b>{{earliestCol.location.name}}</span>
-		<span><b>at: </b>{{formatTime earliestCol.time}}</span>
-		<span><b>Deliver by: </b>{{latestDel.location.name}}</span>
-		<span><b>at: </b>{{formatTime latestDel.time}}</span>
-	</li>
+    <li class="jobItem">
+        {{#if isRecommended }}
+        <i class="fa fa-star" style="color: #cccc00;"></i> {{/if}}
+        <b>{{type}}</b>
+        <h3>Job ID: {{id}}</h3> {{#if isRefSet}}
+        <span><b> ARRC ref: </b>{{ref}}</span> {{/if}}
+        <span><b>Trailer: </b>{{trailer.id}} - {{trailer.name}}</span>
+        <span><b>Truck: </b>{{truck.id}} -  {{truck.name}}</span>
+        <span>{{distance}} Km from truck position</span>
+        <span><b>Collect from: </b>{{earliestCol.location.name}}</span>
+        <span><b>at: </b>{{formatTime earliestCol.time}}</span>
+        <span><b>Deliver by: </b>{{latestDel.location.name}}</span>
+        <span><b>at: </b>{{formatTime latestDel.time}}</span>
+    </li>
 </template>
