@@ -1,0 +1,85 @@
+body{
+	padding: 0;
+	margin: 0;
+}
+
+.truckItem, .jobItem {
+    margin: 2px;
+    background-color: #D7E5E9;
+    padding: 3px 4px 2px;
+    list-style-type: none;
+}
+
+.truckItem:nth-child(odd), .jobItem:nth-child(odd){
+    background-color: #c1cfd3;
+}
+
+.truckItem > h3, .jobItem > h3 {
+    font-size: 1.2em;
+    text-align: center;
+    margin: 4px 0;
+}
+
+.truckItem > span, .jobItem > span {
+    width: 100%;
+    display: inline-block;
+    margin-left: 10px;
+    -webkit-user-select:none;
+}
+
+#left, #right{
+	width: 20%;
+}
+
+#center{
+	width: 60%;
+}
+
+#left, #center, #right{
+	max-height: 89vh;
+	float: left;
+}
+
+#left, #jobList{
+	overflow-y: scroll;
+	overflow-x: hidden;
+}
+
+#jobList{
+	max-height: 76vh;
+}
+
+#left > ul, #right > ul{ 
+	padding: 0;
+	margin: 0;
+}
+
+header > img{
+	margin-left: 10px;
+	height: 11vh;
+}
+
+header{
+	background-color:#09347a;
+	height: 11vh;
+}
+
+#map-canvas{
+	height: 89vh;
+}
+
+#selectedTruck{
+	height: 13vh;
+}
+
+#selectedTruck > span{
+	width: 100%;
+	display: inline-block;
+}
+#selectedTruck > h3{
+	text-align: center;
+}
+
+#selectedTruck h3{
+	margin: 0px;
+}
