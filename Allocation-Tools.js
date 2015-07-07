@@ -100,9 +100,64 @@ if (Meteor.isClient) {
   Meteor.methods({
     showDetails: function(id){
       Session.set("selectedTruck",Trucks.findOne({id:id}));
-      Session.set("recommendedJobs", Jobs.find().fetch());
+      Session.set("recommendedJobs", getSortedJobForTruck(id));
     }
   })
+  function getSortedJobForTruck (truckId) {
+var truck = Trucks.findOne({id:truckId})
+   var recommendedJobs = Jobs.find().fetch();//get recommended jobs for that truck
+   var outstandingJobs = Jobs.find().fetch();//all outstandings jobs
+
+
+    outstandingJobs.forEach(function (job) {
+      recommendedJobs.forEach(function (jobR) {
+         if(jobR.id == job.id){
+            job.isRecommended = true;
+         }
+      });
+
+      console.log(job);
+     job.truckSelectedName = truck.name;
+      var dist = getStraigthDistanceBetweenLocations({
+          lat: job.latestDel.location.lat,
+          lon: job.latestDel.location.long
+      }, {
+          lat: truck.location.lat,
+          lon: truck.location.lng
+      });
+      var km = dist.toString().split(".")[0];
+      var m = dist.toString().split(".")[1];
+      if (m) {
+          m = "." + m.substring(0, 3);
+      } else {
+          m = ".0";
+      }
+      job.distance = km + m;
+    });
+
+   
+
+    var sortedJobs = outstandingJobs.sort(function(jobx, joby) {
+      return (jobx.recommended && joby.recommended) ? 0 : (jobx.recommended) ? -1 : (joby.recommended) ? 1 : jobx.distance - joby.distance;
+    });
+
+    console.log(sortedJobs);
+    return sortedJobs;
+  }
+
+
+
+  function getStraigthDistanceBetweenLocations(loc1, loc2) {
+    console.log(loc1,loc2);
+      var dist = 0.0;
+      var lon1 = (loc1.lon * Math.PI) / 180;
+      var lon2 = (loc2.lon * Math.PI) / 180;
+      var lat1 = (loc1.lat * Math.PI) / 180;
+      var lat2 = (loc2.lat * Math.PI) / 180;
+      var R = 6373;
+      dist = Math.acos((Math.sin(lat1) * Math.sin(lat2)) + (Math.cos(lat1) * Math.cos(lat2) * Math.cos(lon1 - lon2))) * R;
+      return dist;
+  }
 
 }
 
@@ -114,7 +169,9 @@ if (Meteor.isServer) {
 
 
 UI.registerHelper('formatTime', function(context, options) {
-  console.log(context);
   if(context)
     return moment(context).fromNow();
 });
+
+
+
