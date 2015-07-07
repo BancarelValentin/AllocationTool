@@ -1,6 +1,5 @@
 Trucks = new Mongo.Collection("trucks");
 Jobs = new Mongo.Collection("jobs");
-Markers = new Mongo.Collection('markers');
 
 if (Meteor.isClient) {
 
@@ -78,6 +77,12 @@ if (Meteor.isClient) {
         }
     })
 
+    Template.jobItem.events({
+        "dblclick .jobItem": function() {
+            Meteor.call("allocateJob", this.id);
+        }
+    })
+
     Template.rightPart.helpers({
         jobs: function() {
             return Session.get("recommendedJobs");
@@ -93,22 +98,27 @@ if (Meteor.isClient) {
     Template.truckItem.events({
         "click .truckItem": function() {
             Meteor.call("showDetails", this.id);
+        },
+        "dblclick .truckItem": function() {
+            Meteor.call("endDayForTruck", this.id);
         }
     });
 
     Meteor.methods({
+        allocateJob: function (id) {
+            allocateJob(id);
+        },
         showDetails: function(id) {
-            Session.set("selectedTruck", Trucks.findOne({
-                id: id
-            }));
+            Session.set("selectedTruck", Trucks.findOne({id: id}));
             Session.set("recommendedJobs", getSortedJobForTruck(id));
+        },
+        endDayForTruck: function(id) {
+            endDayForTruck(id);
         }
     })
 
     function getSortedJobForTruck(truckId) {
-        var truck = Trucks.findOne({
-            id: truckId
-        })
+        var truck = Trucks.findOne({id: truckId})
         var recommendedJobs = Jobs.find().fetch(); //get recommended jobs for that truck
         var outstandingJobs = Jobs.find().fetch(); //all outstandings jobs
 
@@ -120,7 +130,6 @@ if (Meteor.isClient) {
                 }
             });
 
-            console.log(job);
             job.truckSelectedName = truck.name;
             var dist = getStraigthDistanceBetweenLocations({
                 lat: job.latestDel.location.lat,
@@ -145,14 +154,10 @@ if (Meteor.isClient) {
             return (jobx.recommended && joby.recommended) ? 0 : (jobx.recommended) ? -1 : (joby.recommended) ? 1 : jobx.distance - joby.distance;
         });
 
-        console.log(sortedJobs);
         return sortedJobs;
     }
 
-
-
     function getStraigthDistanceBetweenLocations(loc1, loc2) {
-        console.log(loc1, loc2);
         var dist = 0.0;
         var lon1 = (loc1.lon * Math.PI) / 180;
         var lon2 = (loc2.lon * Math.PI) / 180;
@@ -163,6 +168,32 @@ if (Meteor.isClient) {
         return dist;
     }
 
+    function allocateJob(jobId) {
+        var job=Jobs.findOne({id: jobId});
+        new PNotify({
+            title: 'allocate job #'+job.id,
+            text: "don't forget to implement that",
+            hide: false
+        });
+    };
+
+    function endDayForTruck (truckId) {
+        if(truckId != null){
+            var truck=Trucks.findOne({id: truckId});
+            new PNotify({
+                title: 'end day for truck #'+truck.id,
+                text: "don't forget to implement that",
+                hide: false
+            });
+        }else{
+            new PNotify({
+                title: 'end day for all truck',
+                text: "don't forget to implement that",
+                hide: false
+            });
+        }   
+    }
+
 }
 
 if (Meteor.isServer) {
@@ -170,7 +201,6 @@ if (Meteor.isServer) {
         // code to run on server at startup
     });
 }
-
 
 UI.registerHelper('formatTime', function(context, options) {
     if (context)

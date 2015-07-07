@@ -1,4 +1,6 @@
 <head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pnotify/2.0.0/pnotify.all.min.js"></script>
+
     <title>Allocation-tool</title>
 </head>
 
@@ -10,6 +12,7 @@
 <template name="header">
     <header>
         <img src="/img/logo.png" alt="logo ARR Craib">
+        <button onclick="Meteor.call('endDayForTruck', null)">End day for all trucks</button>
     </header>
 </template>
 
