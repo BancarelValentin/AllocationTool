@@ -1,8 +1,5 @@
 <head>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pnotify/2.0.0/pnotify.all.min.js"></script>
-
     <title>Allocation-tool</title>
-    <script type="text/javascript" src="/lib/fontawesome-markers.min.js"></script>
 </head>
 
 <body>
@@ -24,7 +21,7 @@
 </template>
 
 <template name="leftPart">
-    <div id="left">
+    <div id="left" class="col-xs-12 col-sm-4 col-md-3">
         <ul>
             {{#each trucks}} {{> truckItem}} {{/each}}
         </ul>
@@ -32,13 +29,13 @@
 </template>
 
 <template name="middlePart">
-    <div id="center">
+    <div id="center" class="col-xs-12 col-sm-4 col-md-6">
         {{> map}}
     </div>
 </template>
 
 <template name="rightPart">
-    <div id="right">
+    <div id="right" class="col-xs-12 col-sm-4 col-md-3">
         <div id="selectedTruck">
             {{> selectedTruck}}
         </div>

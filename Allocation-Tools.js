@@ -74,7 +74,6 @@ if (Meteor.isClient) {
 
     Template.jobItem.helpers({
         formattedDate: function() {
-            console.log(moment(this.earliestCol.time).format('DD-MM-YYYY'));
             return moment(this.earliestCol.time).format('DD-MM-YYYY');
         }
     })
@@ -197,13 +196,13 @@ if (Meteor.isClient) {
             new PNotify({
                 title: 'end day for truck #'+truck.id,
                 text: "don't forget to implement that",
-                hide: false
+                hide:false
             });
         }else{
             new PNotify({
                 title: 'end day for all truck',
                 text: "don't forget to implement that",
-                hide: false
+                hide:false
             });
         }   
     }
