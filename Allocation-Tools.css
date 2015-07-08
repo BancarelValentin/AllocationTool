@@ -27,6 +27,10 @@ body{
     -webkit-user-select:none;
 }
 
+.truckItem.selected{
+	background-color: #879599;
+}
+
 #left, #right{
 	width: 20%;
 }

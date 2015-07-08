@@ -2,6 +2,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pnotify/2.0.0/pnotify.all.min.js"></script>
 
     <title>Allocation-tool</title>
+    <script type="text/javascript" src="/lib/fontawesome-markers.min.js"></script>
 </head>
 
 <body>
@@ -49,7 +50,7 @@
 </template>
 
 <template name="truckItem">
-    <li class="truckItem">
+    <li class="truckItem {{#if selected}}selected{{/if}}">
         <h3>{{id}}</h3>
         <span><b>Truck : </b>{{name}}</span>
         <span><b>Location : </b>{{location.name}}</span>
