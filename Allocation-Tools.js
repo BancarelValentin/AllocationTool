@@ -31,7 +31,7 @@ if (Meteor.isClient) {
                 added: function(document) {
                     // Create a marker for this document
                     var marker = new google.maps.Marker({
-                        position: new google.maps.LatLng(document.lastLocation.lat, document.lastLocation.lng),
+                        position: new google.maps.LatLng(document.lastLocation.coordinate.lat, document.lastLocation.coordinate.lng),
                         map: map.instance,
                         id: document.id,
                         icon: "/img/red-dot.png"
@@ -105,25 +105,25 @@ if (Meteor.isClient) {
 
     Template.rightPart.helpers({
         jobs: function() {
-            return Session.get("recommendedJobs");
+            return getSortedJobForTruck(Session.get("selectedTruckID"));
         }
     });
 
     Template.selectedTruck.helpers({
         selectedTruck: function() {
-            return Session.get("selectedTruck");
+            return Trucks.findOne({id:Session.get("selectedTruckID")});
         },
         driver: function() {
-            return Drivers.findOne({id:Session.get("selectedTruck").driverId});
+            return Drivers.findOne({id:Trucks.findOne({id:Session.get("selectedTruckID")}).driverId});
         },
         trailer: function() {    
-            return Trailers.findOne({id:Session.get("selectedTruck").trailerId});
+            return Trailers.findOne({id:Trucks.findOne({id:Session.get("selectedTruckID")}).trailerId});
         }
     });
 
     Template.truckItem.helpers({
         selected: function() {
-            return Session.get("selectedTruck") && this.id == Session.get("selectedTruck").id;
+            return (Session.get("selectedTruckID") || Session.get("selectedTruckID") == 0) && this.id == Session.get("selectedTruckID");
         }
     });
 
@@ -141,14 +141,13 @@ if (Meteor.isClient) {
             allocateJob(id);
         },
         showDetails: function(id) {
-            Session.set("selectedTruck", Trucks.findOne({id: id}));
-            Session.set("recommendedJobs", getSortedJobForTruck(id));
+            Session.set("selectedTruckID", id);
             
-            if(Session.get("selectedID"))
+            if(Session.get("selectedID") || Session.get("selectedID") == 0)
               Markers[Session.get("selectedID")].setIcon("/img/red-dot.png");
 
             Markers[id].setIcon("/img/yellow-dot.png");
-            Session.set("selectedID",id);        
+            Session.set("selectedID",id);
         },
         endDayForTruck: function(id) {
             endDayForTruck(id);
@@ -157,8 +156,8 @@ if (Meteor.isClient) {
 
     function getSortedJobForTruck(truckId) {
         var truck = Trucks.findOne({id: truckId})
-        var recommendedJobs = Jobs.find().fetch(); //get recommended jobs for that truck
-        var outstandingJobs = Jobs.find().fetch(); //all outstandings jobs
+        var recommendedJobs = Jobs.find({recommendedTruck:truckId}).fetch(); //get recommended jobs for that truck
+        var outstandingJobs = Jobs.find({allocationTime:null}).fetch(); //all outstandings jobs
 
 
         outstandingJobs.forEach(function(job) {
@@ -189,7 +188,7 @@ if (Meteor.isClient) {
 
 
         var sortedJobs = outstandingJobs.sort(function(jobx, joby) {
-            return (jobx.recommended && joby.recommended) ? 0 : (jobx.recommended) ? -1 : (joby.recommended) ? 1 : jobx.distance - joby.distance;
+            return (jobx.isRecommended && joby.isRecommended) ? 0 : (jobx.isRecommended) ? -1 : (joby.isRecommended) ? 1 : jobx.distance - joby.distance;
         });
 
         return sortedJobs;

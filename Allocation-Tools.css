@@ -8,6 +8,7 @@ body{
     background-color: #D7E5E9;
     padding: 3px 4px 2px;
     list-style-type: none;
+    -webkit-user-select:none;
 }
 
 .truckItem:nth-child(odd), .jobItem:nth-child(odd){
@@ -23,7 +24,6 @@ body{
     width: 100%;
     display: inline-block;
     margin-left: 10px;
-    -webkit-user-select:none;
 }
 
 .truckItem.selected{
