@@ -73,15 +73,6 @@ if (Meteor.isClient) {
         }
     });
 
-    Template.truckItem.helpers({
-        driver: function() {
-            return Drivers.findOne({id:this.driverId});
-        },
-        trailer: function() {    
-            return Trailers.findOne({id:this.trailerId});
-        }
-    })
-
     Template.jobItem.helpers({
         truck: function() {
             return Trucks.findOne({id:this.truckId});
@@ -94,6 +85,11 @@ if (Meteor.isClient) {
         },
         latestStep: function() {    
             return this.steps[this.steps.length - 1];
+        },
+        isRefSet: function() {   
+            if(this.referenceNumber != null && this.referenceNumber.length > 0)
+                return true;
+            return false;
         }
     })
 
@@ -124,6 +120,12 @@ if (Meteor.isClient) {
     Template.truckItem.helpers({
         selected: function() {
             return (Session.get("selectedTruckID") || Session.get("selectedTruckID") == 0) && this.id == Session.get("selectedTruckID");
+        },
+        driver: function() {
+            return Drivers.findOne({id:this.driverId});
+        },
+        trailer: function() {    
+            return Trailers.findOne({id:this.trailerId});
         }
     });
 
@@ -156,9 +158,8 @@ if (Meteor.isClient) {
 
     function getSortedJobForTruck(truckId) {
         var truck = Trucks.findOne({id: truckId})
-        var recommendedJobs = Jobs.find({recommendedTruck:truckId}).fetch(); //get recommended jobs for that truck
-        var outstandingJobs = Jobs.find({allocationTime:null}).fetch(); //all outstandings jobs
-
+        var recommendedJobs = Jobs.find({recommendedTruck:truck.id}).fetch();
+        var outstandingJobs = Jobs.find({allocationTime:null}).fetch();
 
         outstandingJobs.forEach(function(job) {
             recommendedJobs.forEach(function(jobR) {
@@ -253,7 +254,7 @@ UI.registerHelper('stepToString', function(context, options) {
                 return "Drop off the trailer at ";
             case "collection":
                 return "Collect at ";
-            case "deliver":
+            case "delivery":
                 return "Deliver at ";
             case "moveTo":
                 return "Move to ";
