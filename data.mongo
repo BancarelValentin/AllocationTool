@@ -1,0 +1,473 @@
+db.trucks.insert({ id: 0, name: "TR000", registration: "", lastLocation: { type: "quay", name: "Torry Dock", coordinate: { lat: 57.138776, lng: -2.083637 } }, trailerId: 0, driverId:0})
+db.trucks.insert({ id: 1, name: "TR001", registration: "", lastLocation: { type: "industrial estate", name: "Tullos", coordinate: { lat: 57.127265, lng: -2.089540 } }, trailerId: 1, driverId:1})
+db.trucks.insert({ id: 2, name: "TR002", registration: "", lastLocation: { type: "quay", name: "Altens", coordinate: { lat: 57.110467, lng: -2.075417 } }, trailerId: 2, driverId:2})
+db.trucks.insert({ id: 3, name: "TR003", registration: "", lastLocation: { type: "industrial estate", name: "Kirkhill", coordinate: { lat: 57.210305, lng: -2.214248 } }, trailerId: 3, driverId:3})
+db.trucks.insert({ id: 4, name: "TR004", registration: "", lastLocation: { type: "industrial estate", name: "Dyce", coordinate: { lat: 57.200496, lng: -2.203434} }, trailerId: 4, driverId:4})
+db.trucks.insert({ id: 5, name: "TR005", registration: "", lastLocation: { type: "industrial estate", name: "Bridge Of Don", coordinate: { lat: 57.185056, lng: -2.096248 } }, trailerId: 5, driverId:5})
+db.trucks.insert({ id: 6, name: "TR006", registration: "", lastLocation: { type: "industrial estate", name: "Balmedie", coordinate: { lat: 57.253074, lng: -2.051263 } }, trailerId: 6, driverId:6})
+db.trucks.insert({ id: 7, name: "TR007", registration: "", lastLocation: { type: "industrial estate", name: "Peterhead", coordinate: { lat: 57.506533, lng: -1.810923 } }, trailerId: 7, driverId:7})
+db.trucks.insert({ id: 8, name: "TR008", registration: "", lastLocation: { type: "industrial estate", name: "Montrose", coordinate: { lat: 56.723470, lng: -2.465917 } }, trailerId: 8, driverId:8})
+db.trucks.insert({ id: 9, name: "TR009", registration: "", lastLocation: { type: "quay", name: "Mearns Quay", coordinate: { lat: 57.146786, lng: -2.087952 } }, trailerId: 9, driverId:9})
+
+db.trailers.insert({ id: 0, name: "TL000", type: "flat", lastLocation: { type: "industrial estate", name: "Peterhead", coordinate: { lat: 57.506533, lng: -1.810923 } } })
+db.trailers.insert({ id: 1, name: "TL001", type: "flat", lastLocation: { type: "quay", name: "Altens", coordinate: { lat: 57.110467, lng: -2.075417 } } })
+db.trailers.insert({ id: 2, name: "TL002", type: "flat", lastLocation: { type: "quay", name: "Torry Dock", coordinate: { lat: 57.138776, lng: -2.083637 } } })
+db.trailers.insert({ id: 3, name: "TL003", type: "flat", lastLocation: { type: "quay", name: "Altens", coordinate: { lat: 57.110467, lng: -2.075417 } } })
+db.trailers.insert({ id: 4, name: "TL004", type: "flat", lastLocation: { type: "quay", name: "Torry Dock", coordinate: { lat: 57.138776, lng: -2.083637 } } })
+db.trailers.insert({ id: 5, name: "TL005", type: "flat", lastLocation: { type: "industrial estate", name: "Dyce", coordinate: { lat: 57.200496, lng: -2.203434} } })
+db.trailers.insert({ id: 6, name: "TL006", type: "flat", lastLocation: { type: "quay", name: "Torry Dock", coordinate: { lat: 57.138776, lng: -2.083637 } } })
+db.trailers.insert({ id: 7, name: "TL007", type: "flat", lastLocation: { type: "quay", name: "Altens", coordinate: { lat: 57.110467, lng: -2.075417 } } })
+db.trailers.insert({ id: 8, name: "TL008", type: "flat", lastLocation: { type: "quay", name: "Altens", coordinate: { lat: 57.110467, lng: -2.075417 } } })
+db.trailers.insert({ id: 9, name: "TL009", type: "flat", lastLocation: { type: "quay", name: "Mearns Quay", coordinate: { lat: 57.146786, lng: -2.087952 } } })
+
+db.customers.insert({ id: 0, name: "Baker Atlas" })
+db.customers.insert({ id: 1, name: "Oceaneering" })
+db.customers.insert({ id: 2, name: "Sparrows" })
+db.customers.insert({ id: 3, name: "ASDA" })
+db.customers.insert({ id: 4, name: "Total" })
+db.customers.insert({ id: 5, name: "Shell" })
+db.customers.insert({ id: 6, name: "Ferguson Sea Cabs" })
+db.customers.insert({ id: 7, name: "Balmoral" })
+db.customers.insert({ id: 8, name: "Northwards" })
+db.customers.insert({ id: 9, name: "Noble Drilling" })
+
+db.drivers.insert({
+    id:0,
+    adrLevel:000000000,
+    firstName:"John",
+    lastName:"Doe",
+    baseLocation:{ type: "industrial estate", name: "Dyce", coordinate: { lat: 57.200496, lng: -2.203434} },
+    employeeId:0,
+    isAirportTraining:false
+})
+db.drivers.insert({
+    id:1,
+    adrLevel:0111001010,
+    firstName:"Peter",
+    lastName:"McDonald",
+    baseLocation:{ type: "industrial estate", name: "Balmedie", coordinate: { lat: 57.253074, lng: -2.051263 } },
+    employeeId:0,
+    isAirportTraining:false
+})
+db.drivers.insert({
+    id:2,
+    adrLevel:0010111000,
+    firstName:"Dave",
+    lastName:"Davinson",
+    baseLocation:{ type: "quay", name: "Altens", coordinate: { lat: 57.110467, lng: -2.075417 } },
+    employeeId:0,
+    isAirportTraining:false
+})
+db.drivers.insert({
+    id:3,
+    adrLevel:1110001101,
+    firstName:"Peter",
+    lastName:"Davinson",
+    baseLocation:{ type: "quay", name: "Torry Dock", coordinate: { lat: 57.138776, lng: -2.083637 } },
+    employeeId:0,
+    isAirportTraining:false
+})
+db.drivers.insert({
+    id:4,
+    adrLevel:1110000001,
+    firstName:"Daivd",
+    lastName:"Doe",
+    baseLocation:{ type: "quay", name: "Mearns Quay", coordinate: { lat: 57.146786, lng: -2.087952 } },
+    employeeId:0,
+    isAirportTraining:true
+})
+db.drivers.insert({
+    id:5,
+    adrLevel:0000011111,
+    firstName:"Peter",
+    lastName:"Doe",
+    baseLocation:{ type: "industrial estate", name: "Dyce", coordinate: { lat: 57.200496, lng: -2.203434} },
+    employeeId:0,
+    isAirportTraining:true
+})
+db.drivers.insert({
+    id:6,
+    adrLevel:0010011101,
+    firstName:"Michael",
+    lastName:"Doe",
+    baseLocation:{ type: "quay", name: "Altens", coordinate: { lat: 57.110467, lng: -2.075417 } },
+    employeeId:0,
+    isAirportTraining:true
+})
+db.drivers.insert({
+    id:7,
+    adrLevel:1100001010,
+    firstName:"Peter",
+    lastName:"Peterson",
+    baseLocation:{ type: "industrial estate", name: "Balmedie", coordinate: { lat: 57.253074, lng: -2.051263 } },
+    employeeId:0,
+    isAirportTraining:false
+})
+db.drivers.insert({
+    id:8,
+    adrLevel:0101101010,
+    firstName:"Nicolas",
+    lastName:"Davinson",
+    baseLocation:{ type: "industrial estate", name: "Montrose", coordinate: { lat: 56.723470, lng: -2.465917 } },
+    employeeId:0,
+    isAirportTraining:false
+})
+db.drivers.insert({
+    id:9,
+    adrLevel:1111111111,
+    firstName:"Nicolas",
+    lastName:"Peterson",
+    baseLocation:{ type: "industrial estate", name: "Dyce", coordinate: { lat: 57.200496, lng: -2.203434} },
+    employeeId:0,
+    isAirportTraining:true
+})
+
+
+
+
+db.jobs.insert({
+    id:0,
+    needAdr:0011000001,
+    customerId:5,
+    jobInputTime:new Date("2015-07-08 06:00:00"),
+    jobAllocationTime:new Date("2015-07-08 08:00:00"),
+    jobCancellationTime:null,
+    jobCollectionTime:new Date("2015-07-08 09:53:23"),
+    jobCompletionTime:new Date("2015-07-08 10:45:55"),
+    jobType:"inbound",
+    specificTrailerID:null,
+    trailerId:1,
+    jobReferenceNumber:"JFH30F",
+    truckId:3,
+    jobInfo:"No extra informations for that job",
+    check:true,
+    recommendedTruck:3,
+    steps:[
+        {type:"takeTrailer",
+            earliestTime:new Date("2015-07-08 08:45:00"),
+            latestTime:new Date("2015-07-08 10:00:00"),
+            actualTime:new Date("2015-07-08 09:02:34"),
+            trailerId:"0",
+            location:{ type: "quay", name: "Torry Dock", coordinate: { lat: 57.138776, lng: -2.083637 } }
+        },
+        {type:"collection",
+            earliestTime:new Date("2015-07-08 08:00:00"),
+            latestTime:new Date("2015-07-08 11:00:00"),
+            actualTime:new Date("2015-07-08 10:34:34"),
+            location:{ type: "industrial estate", name: "Dyce", coordinate: { lat: 57.200496, lng: -2.203434} }
+        },
+        {type:"delivery",
+            earliestTime:new Date("08:00:00"),
+            latestTime:new Date("11:00:00"),
+            actualTime:new Date("10:45:55"),
+            location:{ type: "industrial estate", name: "Balmedie", coordinate: { lat: 57.253074, lng: -2.051263 } }
+        },
+        {type:"dropOffTrailer",
+            earliestTime:new Date("2015-07-08 08:00:00"),
+            latestTime:new Date("2015-07-08 11:00:00"),
+            actualTime:new Date("2015-07-08 10:45:55"),
+            location:{ type: "industrial estate", name: "Balmedie", coordinate: { lat: 57.253074, lng: -2.051263 } }
+        }
+    ]
+})
+db.jobs.insert({
+    id:1,
+    needAdr:0011100111,
+    customerId:2,
+    jobInputTime:new Date("2015-07-08 07:00:00"),
+    jobAllocationTime:new Date("2015-07-08 08:01:43"),
+    jobCancellationTime:null,
+    jobCollectionTime:new Date("2015-07-08 10:53:23"),
+    jobCompletionTime:new Date("2015-07-08 16:00:55"),
+    jobType:"inbound",
+    specificTrailerID:3,
+    trailerId:3,
+    jobReferenceNumber:"JFH30F",
+    truckId:2,
+    jobInfo:"No extra informations for that job",
+    check:true,
+    recommendedTruck:null,
+    steps:[
+        {type:"takeTrailer",
+            earliestTime:new Date("2015-07-08 10:45:00"),
+            latestTime:new Date("2015-07-08 11:00:00"),
+            actualTime:new Date("2015-07-08 10:53:23"),
+            trailerId:"0",
+            location:{ type: "industrial estate", name: "Montrose", coordinate: { lat: 56.723470, lng: -2.465917 } }
+        },
+        {type:"collection",
+            earliestTime:new Date("2015-07-08 10:45:00"),
+            latestTime:new Date("2015-07-08 11:00:00"),
+            actualTime:new Date("2015-07-08 10:53:23"),
+            location:{ type: "industrial estate", name: "Montrose", coordinate: { lat: 56.723470, lng: -2.465917 } }
+        },
+        {type:"collection",
+            earliestTime:new Date("2015-07-08 06:00:00"),
+            latestTime:new Date("2015-07-08 12:00:00"),
+            actualTime:new Date("2015-07-08 11:34:34"),
+            location:{ type: "industrial estate", name: "Dyce", coordinate: { lat: 57.200496, lng: -2.203434} } 
+        },
+        {type:"delivery",
+            earliestTime:new Date("2015-07-08 16:00:00"),
+            latestTime:new Date("2015-07-08 17:00:00"),
+            actualTime:new Date("2015-07-08 16:00:55"),
+            location:{ type: "industrial estate", name: "Bridge Of Don", coordinate: { lat: 57.185056, lng: -2.096248 } }
+        }
+    ]
+})
+db.jobs.insert({
+    id:2,
+    needAdr:0011000010,
+    customerId:3,
+    jobInputTime:new Date("2015-07-08 06:00:00"),
+    jobAllocationTime:null,
+    jobCancellationTime:null,
+    jobCollectionTime:null,
+    jobCompletionTime:null,
+    jobType:"inbound",
+    specificTrailerID:null,
+    trailerId:null,
+    jobReferenceNumber:"23ERT5",
+    truckId:null,
+    jobInfo:"No extra informations for that job",
+    check:true,
+    recommendedTruck:null,
+    steps:[
+        {type:"collection",
+            earliestTime:new Date("2015-07-08 08:00:00"),
+            latestTime:new Date("2015-07-08 11:00:00"),
+            actualTime:null,
+            location:{ type: "industrial estate", name: "Bridge Of Don", coordinate: { lat: 57.185056, lng: -2.096248 } }
+        },
+        {type:"delivery",
+            earliestTime:new Date("08:00:00"),
+            latestTime:new Date("11:00:00"),
+            actualTime:null,
+            location:{ type: "industrial estate", name: "Balmedie", coordinate: { lat: 57.253074, lng: -2.051263 } }
+        }
+    ]
+})
+db.jobs.insert({
+    id:3,
+    needAdr:0011100101,
+    customerId:3,
+    jobInputTime:new Date("2015-07-08 06:00:00"),
+    jobAllocationTime:null,
+    jobCancellationTime:null,
+    jobCollectionTime:null,
+    jobCompletionTime:null,
+    jobType:"inbound",
+    specificTrailerID:2,
+    trailerId:null,
+    jobReferenceNumber:"FK39D3",
+    truckId:null,
+    jobInfo:"No extra informations for that job",
+    check:true,
+    recommendedTruck:null,
+    steps:[
+        {type:"collection",
+            earliestTime:new Date("2015-07-08 08:00:00"),
+            latestTime:new Date("2015-07-08 11:00:00"),
+            actualTime:null,
+            location:{ type: "industrial estate", name: "Bridge Of Don", coordinate: { lat: 57.185056, lng: -2.096248 } }
+        },
+        {type:"delivery",
+            earliestTime:new Date("08:00:00"),
+            latestTime:new Date("11:00:00"),
+            actualTime:null,
+            location:{ type: "industrial estate", name: "Balmedie", coordinate: { lat: 57.253074, lng: -2.051263 } }
+        }
+    ]
+})
+db.jobs.insert({
+    id:4,
+    needAdr:0000000000,
+    customerId:7,
+    jobInputTime:new Date("2015-07-08 06:00:00"),
+    jobAllocationTime:null,
+    jobCancellationTime:null,
+    jobCollectionTime:null,
+    jobCompletionTime:null,
+    jobType:"outbound",
+    specificTrailerID:null,
+    trailerId:null,
+    jobReferenceNumber:"DFGT5R",
+    truckId:null,
+    jobInfo:"No extra informations for that job",
+    check:true,
+    recommendedTruck:null,
+    steps:[
+        {type:"collection",
+            earliestTime:new Date("2015-07-08 08:00:00"),
+            latestTime:new Date("2015-07-08 11:00:00"),
+            actualTime:null,
+            location:{ type: "industrial estate", name: "Bridge Of Don", coordinate: { lat: 57.185056, lng: -2.096248 } }
+        },
+        {type:"delivery",
+            earliestTime:new Date("08:00:00"),
+            latestTime:new Date("11:00:00"),
+            actualTime:null,
+            location:{ type: "industrial estate", name: "Balmedie", coordinate: { lat: 57.253074, lng: -2.051263 } }
+        }
+    ]
+})
+db.jobs.insert({
+    id:5,
+    needAdr:0000000000,
+    customerId:9,
+    jobInputTime:new Date("2015-07-08 06:00:00"),
+    jobAllocationTime:null,
+    jobCancellationTime:null,
+    jobCollectionTime:null,
+    jobCompletionTime:null,
+    jobType:"local",
+    specificTrailerID:7,
+    trailerId:null,
+    jobReferenceNumber:"FDGT32",
+    truckId:null,
+    jobInfo:"No extra informations for that job",
+    check:true,
+    recommendedTruck:3,
+    steps:[
+        {type:"collection",
+            earliestTime:new Date("2015-07-08 08:00:00"),
+            latestTime:new Date("2015-07-08 11:00:00"),
+            actualTime:null,
+            location:{ type: "industrial estate", name: "Bridge Of Don", coordinate: { lat: 57.185056, lng: -2.096248 } }
+        },
+        {type:"delivery",
+            earliestTime:new Date("08:00:00"),
+            latestTime:new Date("11:00:00"),
+            actualTime:null,
+            location:{ type: "industrial estate", name: "Balmedie", coordinate: { lat: 57.253074, lng: -2.051263 } }
+        }
+    ]
+})
+db.jobs.insert({
+    id:6,
+    needAdr:0111100011,
+    customerId:0,
+    jobInputTime:new Date("2015-07-08 06:00:00"),
+    jobAllocationTime:null,
+    jobCancellationTime:null,
+    jobCollectionTime:null,
+    jobCompletionTime:null,
+    jobType:"inbound",
+    specificTrailerID:2,
+    trailerId:null,
+    jobReferenceNumber:"FKS93O",
+    truckId:null,
+    jobInfo:"No extra informations for that job",
+    check:true,
+    recommendedTruck:null,
+    steps:[
+        {type:"collection",
+            earliestTime:new Date("2015-07-08 08:00:00"),
+            latestTime:new Date("2015-07-08 11:00:00"),
+            actualTime:null,
+            location:{ type: "industrial estate", name: "Bridge Of Don", coordinate: { lat: 57.185056, lng: -2.096248 } }
+        },
+        {type:"delivery",
+            earliestTime:new Date("08:00:00"),
+            latestTime:new Date("11:00:00"),
+            actualTime:null,
+            location:{ type: "industrial estate", name: "Balmedie", coordinate: { lat: 57.253074, lng: -2.051263 } }
+        }
+    ]
+})
+db.jobs.insert({
+    id:7,
+    needAdr:0011100101,
+    customerId:3,
+    jobInputTime:new Date("2015-07-08 06:00:00"),
+    jobAllocationTime:null,
+    jobCancellationTime:null,
+    jobCollectionTime:null,
+    jobCompletionTime:null,
+    jobType:"inbound",
+    specificTrailerID:null,
+    trailerId:null,
+    jobReferenceNumber:"DJSKF2",
+    truckId:null,
+    jobInfo:"No extra informations for that job",
+    check:true,
+    recommendedTruck:null,
+    steps:[
+        {type:"collection",
+            earliestTime:new Date("2015-07-08 08:00:00"),
+            latestTime:new Date("2015-07-08 11:00:00"),
+            actualTime:null,
+            location:{ type: "industrial estate", name: "Bridge Of Don", coordinate: { lat: 57.185056, lng: -2.096248 } }
+        },
+        {type:"delivery",
+            earliestTime:new Date("08:00:00"),
+            latestTime:new Date("11:00:00"),
+            actualTime:null,
+            location:{ type: "industrial estate", name: "Balmedie", coordinate: { lat: 57.253074, lng: -2.051263 } }
+        }
+    ]
+})
+db.jobs.insert({
+    id:8,
+    needAdr:0000000000,
+    customerId:6,
+    jobInputTime:new Date("2015-07-08 06:00:00"),
+    jobAllocationTime:null,
+    jobCancellationTime:null,
+    jobCollectionTime:null,
+    jobCompletionTime:null,
+    jobType:"outbound",
+    specificTrailerID:2,
+    trailerId:null,
+    jobReferenceNumber:"SLA98E",
+    truckId:null,
+    jobInfo:"No extra informations for that job",
+    check:true,
+    recommendedTruck:2,
+    steps:[
+        {type:"collection",
+            earliestTime:new Date("2015-07-08 08:00:00"),
+            latestTime:new Date("2015-07-08 11:00:00"),
+            actualTime:null,
+            location:{ type: "industrial estate", name: "Bridge Of Don", coordinate: { lat: 57.185056, lng: -2.096248 } }
+        },
+        {type:"delivery",
+            earliestTime:new Date("08:00:00"),
+            latestTime:new Date("11:00:00"),
+            actualTime:null,
+            location:{ type: "industrial estate", name: "Balmedie", coordinate: { lat: 57.253074, lng: -2.051263 } }
+        }
+    ]
+})
+db.jobs.insert({
+    id:9,
+    needAdr:1111111111,
+    customerId:8,
+    jobInputTime:new Date("2015-07-08 06:00:00"),
+    jobAllocationTime:null,
+    jobCancellationTime:null,
+    jobCollectionTime:null,
+    jobCompletionTime:null,
+    jobType:"inbound",
+    specificTrailerID:2,
+    trailerId:null,
+    jobReferenceNumber:"DK342R",
+    truckId:null,
+    jobInfo:"No extra informations for that job",
+    check:true,
+    recommendedTruck:7,
+    steps:[
+        {type:"collection",
+            earliestTime:new Date("2015-07-08 08:00:00"),
+            latestTime:new Date("2015-07-08 11:00:00"),
+            actualTime:null,
+            location:{ type: "industrial estate", name: "Bridge Of Don", coordinate: { lat: 57.185056, lng: -2.096248 } }
+        },
+        {type:"delivery",
+            earliestTime:new Date("08:00:00"),
+            latestTime:new Date("11:00:00"),
+            actualTime:null,
+            location:{ type: "industrial estate", name: "Balmedie", coordinate: { lat: 57.253074, lng: -2.051263 } }
+        }
+    ]
+})

@@ -1,7 +1,8 @@
 Trucks = new Mongo.Collection("trucks");
 Jobs = new Mongo.Collection("jobs");
+Drivers = new Mongo.Collection("drivers");
+Trailers = new Mongo.Collection("trailers");
 Markers = {};
-
 
 if (Meteor.isClient) {
 
@@ -30,7 +31,7 @@ if (Meteor.isClient) {
                 added: function(document) {
                     // Create a marker for this document
                     var marker = new google.maps.Marker({
-                        position: new google.maps.LatLng(document.location.lat, document.location.lng),
+                        position: new google.maps.LatLng(document.lastLocation.lat, document.lastLocation.lng),
                         map: map.instance,
                         id: document.id,
                         icon: "/img/red-dot.png"
@@ -72,9 +73,27 @@ if (Meteor.isClient) {
         }
     });
 
+    Template.truckItem.helpers({
+        driver: function() {
+            return Drivers.findOne({id:this.driverId});
+        },
+        trailer: function() {    
+            return Trailers.findOne({id:this.trailerId});
+        }
+    })
+
     Template.jobItem.helpers({
-        formattedDate: function() {
-            return moment(this.earliestCol.time).format('DD-MM-YYYY');
+        truck: function() {
+            return Trucks.findOne({id:this.truckId});
+        },
+        trailer: function() {    
+            return Trailers.findOne({id:this.trailerId});
+        },
+        earliestStep: function() {
+            return this.steps[0];
+        },
+        latestStep: function() {    
+            return this.steps[this.steps.length - 1];
         }
     })
 
@@ -93,6 +112,12 @@ if (Meteor.isClient) {
     Template.selectedTruck.helpers({
         selectedTruck: function() {
             return Session.get("selectedTruck");
+        },
+        driver: function() {
+            return Drivers.findOne({id:Session.get("selectedTruck").driverId});
+        },
+        trailer: function() {    
+            return Trailers.findOne({id:Session.get("selectedTruck").trailerId});
         }
     });
 
@@ -145,11 +170,11 @@ if (Meteor.isClient) {
 
             job.truckSelectedName = truck.name;
             var dist = getStraigthDistanceBetweenLocations({
-                lat: job.latestDel.location.lat,
-                lon: job.latestDel.location.long
+                lat: job.steps[0].location.coordinate.lat,
+                lng: job.steps[0].location.coordinate.lng
             }, {
-                lat: truck.location.lat,
-                lon: truck.location.lng
+                lat: truck.lastLocation.coordinate.lat,
+                lng: truck.lastLocation.coordinate.lng
             });
             var km = dist.toString().split(".")[0];
             var m = dist.toString().split(".")[1];
@@ -172,12 +197,13 @@ if (Meteor.isClient) {
 
     function getStraigthDistanceBetweenLocations(loc1, loc2) {
         var dist = 0.0;
-        var lon1 = (loc1.lon * Math.PI) / 180;
-        var lon2 = (loc2.lon * Math.PI) / 180;
+        var lng1 = (loc1.lng * Math.PI) / 180;
+        var lng2 = (loc2.lng * Math.PI) / 180;
         var lat1 = (loc1.lat * Math.PI) / 180;
         var lat2 = (loc2.lat * Math.PI) / 180;
         var R = 6373;
-        dist = Math.acos((Math.sin(lat1) * Math.sin(lat2)) + (Math.cos(lat1) * Math.cos(lat2) * Math.cos(lon1 - lon2))) * R;
+        dist = Math.acos((Math.sin(lat1) * Math.sin(lat2)) + (Math.cos(lat1) * Math.cos(lat2) * Math.cos(lng1 - lng2))) * R;
+        
         return dist;
     }
 
@@ -186,7 +212,10 @@ if (Meteor.isClient) {
         new PNotify({
             title: 'allocate job #'+job.id,
             text: "don't forget to implement that",
-            hide: false
+            hide: false,
+            buttons: {
+                sticker: false
+            }
         });
     };
 
@@ -196,7 +225,7 @@ if (Meteor.isClient) {
             new PNotify({
                 title: 'end day for truck #'+truck.id,
                 text: "don't forget to implement that",
-                hide:false
+                hide: false
             });
         }else{
             new PNotify({
@@ -209,11 +238,30 @@ if (Meteor.isClient) {
 
 }
 
+
 if (Meteor.isServer) {
     Meteor.startup(function() {
         // code to run on server at startup
     });
 }
+
+UI.registerHelper('stepToString', function(context, options) {
+    if (context){
+        switch(context.type) {
+            case "takeTrailer":
+                return "Take trailer at ";
+            case "dropOffTrailer":
+                return "Drop off the trailer at ";
+            case "collection":
+                return "Collect at ";
+            case "deliver":
+                return "Deliver at ";
+            case "moveTo":
+                return "Move to ";
+            default: return context.type;
+        }
+    }
+});
 
 UI.registerHelper('formatTime', function(context, options) {
     if (context)

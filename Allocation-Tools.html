@@ -50,9 +50,9 @@
     <li class="truckItem {{#if selected}}selected{{/if}}">
         <h3>{{id}}</h3>
         <span><b>Truck : </b>{{name}}</span>
-        <span><b>Location : </b>{{location.name}}</span>
-        <span><b>Driver : </b>{{driver}}</span>
-        <span><b>Trailer : </b>{{trailer}}</span>
+        <span><b>Location : </b>{{lastLocation.name}}</span>
+        <span><b>Driver : </b>{{driver.firstName}} {{driver.lastName}}</span>
+        <span><b>Trailer : </b>{{trailer.name}}</span>
     </li>
 </template>
 
@@ -68,9 +68,9 @@
     {{#if selectedTruck}}
     <h3>{{selectedTruck.id}}</h3>
     <span><b>Truck : </b>{{selectedTruck.name}}</span>
-    <span><b>Location : </b>{{selectedTruck.location.name}}</span>
-    <span><b>Driver : </b>{{selectedTruck.driver}}</span>
-    <span><b>Trailer : </b>{{selectedTruck.trailer}}</span> {{/if}}
+    <span><b>Location : </b>{{selectedTruck.lastLocation.name}}</span>
+    <span><b>Driver : </b>{{driver.firstName}} {{driver.lastName}}</span>
+    <span><b>Trailer : </b>{{trailer.name}}</span> {{/if}}
 </template>
 
 <template name="jobItem">
@@ -83,9 +83,9 @@
         <span><b>Trailer: </b>{{trailer.id}} - {{trailer.name}}</span>
         <span><b>Truck: </b>{{truck.id}} -  {{truck.name}}</span>
         <span>{{distance}} Km from truck position</span>
-        <span><b>Collect from: </b>{{earliestCol.location.name}}</span>
-        <span><b>at: </b>{{formatTime earliestCol.time}}</span>
-        <span><b>Deliver by: </b>{{latestDel.location.name}}</span>
-        <span><b>at: </b>{{formatTime latestDel.time}}</span>
+
+        <span>{{stepToString earliestStep}} {{earliestStep.location.name}} {{formatTime earliestStep.latestTime}}</span>
+
+        <span>{{stepToString latestStep}} {{latestStep.location.name}} {{formatTime latestStep.latestTime}}</span>
     </li>
 </template>
