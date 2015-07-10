@@ -41,6 +41,10 @@ if (Meteor.isClient) {
                         Meteor.call("showDetails", marker.id);
                     });
 
+                    google.maps.event.addListener(marker, 'dblclick', function() {
+                        Meteor.call("endDayForTruck", marker.id);
+                    });
+
                     // Store this marker instance within the Markers object.
                     Markers[document.id] = marker;
                 },
@@ -69,7 +73,10 @@ if (Meteor.isClient) {
 
     Template.leftPart.helpers({
         trucks: function() {
-            return Trucks.find();
+            var ids = []
+            Jobs.find({truckId:{$ne:null}, completionTime:null},{truckId:1}).forEach(function(job){ids.push(job.truckId)});
+            console.log(ids);
+            return Trucks.find({id:{$nin:ids}});
         }
     });
 
@@ -101,7 +108,7 @@ if (Meteor.isClient) {
 
     Template.rightPart.helpers({
         jobs: function() {
-            return getSortedJobForTruck(Session.get("selectedTruckID"));
+            return (Session.get("selectedTruckID") || Session.get("selectedTruckID") == 0)?getSortedJobForTruck(Session.get("selectedTruckID")):[];
         }
     });
 
@@ -140,7 +147,52 @@ if (Meteor.isClient) {
 
     Meteor.methods({
         allocateJob: function (id) {
-            allocateJob(id);
+            var job = Jobs.findOne({id: id});
+            var truck = Trucks.findOne({id:Session.get("selectedTruckID")});
+            var trailer = Trailers.findOne({id:truck.trailerId});
+
+            var askForConfirm = "Do you really want to allocate the job " + job.id + " to the truck " + truck.name;
+            var confirmText = 'The job ' + job.id + ' had been allocated to the truck: ' + truck.name;
+
+            if (trailer.id || trailer.id == 0) {
+                askForConfirm += " and the trailer " + trailer.name;
+                confirmText += ' with the trailer: ' + trailer.name;
+            }
+            askForConfirm += " ?";
+            confirmText += ".";
+
+            toto = (new PNotify({
+                title: 'Confirmation Needed',
+                text: askForConfirm,
+                icon: 'glyphicon glyphicon-question-sign',
+                hide: false,
+                confirm: {
+                    confirm: true
+                },
+                buttons: {
+                    closer: false,
+                    sticker: false
+                },
+                history: {
+                    history: false
+                }
+            })).get().on('pnotify.confirm', function() {
+                
+                Jobs.update({_id:job._id},{$set:{trailerId:trailer.id, allocationTime:new Date(), truckId:truck.id}})
+
+                new PNotify({
+                    title: 'Allocated',
+                    text: confirmText,
+                    type: 'success'
+                });
+
+            }).on('pnotify.cancel', function() {
+                new PNotify({
+                    title: 'Allocation cancelled',
+                    type: 'error'
+                });
+            });
+
         },
         showDetails: function(id) {
             Session.set("selectedTruckID", id);
@@ -152,7 +204,20 @@ if (Meteor.isClient) {
             Session.set("selectedID",id);
         },
         endDayForTruck: function(id) {
-            endDayForTruck(id);
+            if(id != null){
+                var truck=Trucks.findOne({id: id});
+                new PNotify({
+                    title: 'end day for truck #'+truck.id,
+                    text: "don't forget to implement that",
+                    hide: false
+                });
+            }else{
+                new PNotify({
+                    title: 'end day for all truck',
+                    text: "don't forget to implement that",
+                    hide:false
+                });
+            }
         }
     })
 
@@ -186,8 +251,6 @@ if (Meteor.isClient) {
             job.distance = km + m;
         });
 
-
-
         var sortedJobs = outstandingJobs.sort(function(jobx, joby) {
             return (jobx.isRecommended && joby.isRecommended) ? 0 : (jobx.isRecommended) ? -1 : (joby.isRecommended) ? 1 : jobx.distance - joby.distance;
         });
@@ -205,35 +268,6 @@ if (Meteor.isClient) {
         dist = Math.acos((Math.sin(lat1) * Math.sin(lat2)) + (Math.cos(lat1) * Math.cos(lat2) * Math.cos(lng1 - lng2))) * R;
         
         return dist;
-    }
-
-    function allocateJob(jobId) {
-        var job=Jobs.findOne({id: jobId});
-        new PNotify({
-            title: 'allocate job #'+job.id,
-            text: "don't forget to implement that",
-            hide: false,
-            buttons: {
-                sticker: false
-            }
-        });
-    };
-
-    function endDayForTruck (truckId) {
-        if(truckId != null){
-            var truck=Trucks.findOne({id: truckId});
-            new PNotify({
-                title: 'end day for truck #'+truck.id,
-                text: "don't forget to implement that",
-                hide: false
-            });
-        }else{
-            new PNotify({
-                title: 'end day for all truck',
-                text: "don't forget to implement that",
-                hide:false
-            });
-        }   
     }
 
 }
