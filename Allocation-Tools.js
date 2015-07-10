@@ -101,8 +101,10 @@ if (Meteor.isClient) {
     })
 
     Template.jobItem.events({
-        "dblclick .jobItem": function() {
-            Meteor.call("allocateJob", this.id);
+        "click .jobItem": function() {
+            if(arguments[0].altKey){
+                Meteor.call("allocateJob", this.id);
+            }
         }
     })
 
@@ -138,10 +140,13 @@ if (Meteor.isClient) {
 
     Template.truckItem.events({
         "click .truckItem": function() {
-            Meteor.call("showDetails", this.id);
+            if(arguments[0].altKey){
+                Meteor.call("endDayForTruck", this.id);
+            }else{
+                Meteor.call("showDetails", this.id);
+            }
         },
         "dblclick .truckItem": function() {
-            Meteor.call("endDayForTruck", this.id);
         }
     });
 
@@ -203,22 +208,53 @@ if (Meteor.isClient) {
             Markers[id].setIcon("/img/yellow-dot.png");
             Session.set("selectedID",id);
         },
-        endDayForTruck: function(id) {
-            if(id != null){
-                var truck=Trucks.findOne({id: id});
-                new PNotify({
-                    title: 'end day for truck #'+truck.id,
-                    text: "don't forget to implement that",
-                    hide: false
+        endDayForTruck: function(truckId) {
+            if(truckId != null){
+                var truck=Trucks.findOne({id: truckId});
+                console.log(truck);
+                Trucks.update({_id:truck._id},{$set:{sentToHisBaseOn:new Date()}});
+                console.log(Trucks.findOne({id: truckId}));
+                (new PNotify({
+                    title: "Sending the truck #"+truck.name+" to his base",
+                    text: "Are you sure you want to end the day for this truck ?",
+                    confirm: {
+                        confirm: true
+                    }
+                })).get().on('pnotify.confirm', function(){
+                    new PNotify({
+                        title: "Success",
+                        text: "The truck #"+truck.name+" has been sent to his base successfully",
+                        type: 'success'
+                    })
+                }).on('pnotify.cancel', function(){
+                    new PNotify({
+                        title: "Info",
+                        text: "Aborted",
+                        type: 'info'
+                    })
                 });
             }else{
-                new PNotify({
-                    title: 'end day for all truck',
-                    text: "don't forget to implement that",
-                    hide:false
+                (new PNotify({
+                    title: "Sending all truck to their base",
+                    text: "Are you sure you want to end the day for all trucks ?",
+                    confirm: {
+                        confirm: true
+                    }
+                })).get().on('pnotify.confirm', function(){
+                    new PNotify({
+                        title: "Success",
+                        text: "All trucks has been sent to their base successfully",
+                        type: 'success'
+                    })
+                }).on('pnotify.cancel', function(){
+                    new PNotify({
+                        title: "Info",
+                        text: "Aborted",
+                        type: 'info'
+                    })
                 });
-            }
-        }
+            }   
+        }   
     })
 
     function getSortedJobForTruck(truckId) {
@@ -269,7 +305,6 @@ if (Meteor.isClient) {
         
         return dist;
     }
-
 }
 
 
