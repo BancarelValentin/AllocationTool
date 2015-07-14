@@ -1,3 +1,9 @@
+db.trucks.drop()
+db.trailers.drop()
+db.drivers.drop()
+db.jobs.drop()
+db.customers.drop()
+
 db.trucks.insert({ id: 0, name: "TR000", registration: "", lastLocation: { type: "quay", name: "Torry Dock", coordinate: { lat: 57.138776, lng: -2.083637 } }, trailerId: 0, driverId:0, sentToHisBaseOn:new Date("2015-07-08 19:00:00")})
 db.trucks.insert({ id: 1, name: "TR001", registration: "", lastLocation: { type: "industrial estate", name: "Tullos", coordinate: { lat: 57.127265, lng: -2.089540 } }, trailerId: 1, driverId:1, sentToHisBaseOn:new Date("2015-07-08 19:00:00")})
 db.trucks.insert({ id: 2, name: "TR002", registration: "", lastLocation: { type: "quay", name: "Altens", coordinate: { lat: 57.110467, lng: -2.075417 } }, trailerId: 2, driverId:2, sentToHisBaseOn:new Date("2015-07-08 19:00:00")})

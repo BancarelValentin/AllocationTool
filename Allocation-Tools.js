@@ -6,6 +6,18 @@ Markers = {};
 
 if (Meteor.isClient) {
 
+
+    var getNotFreeTrucksIds = function() {
+
+        var ids = [];
+        var todayMidnight = new Date().setHours(0,0,0,0);
+        
+        Jobs.find({truckId:{$ne:null}, completionTime:null},{truckId:1}).forEach(function(job){ids.push(job.truckId)});
+        Trucks.find({sentToHisBaseOn:{$gte: new Date(todayMidnight)}}).forEach(function(truck){ids.push(truck.id)});
+
+        return ids;
+    }
+
     Meteor.startup(function() {
         GoogleMaps.load();
     });
@@ -24,47 +36,56 @@ if (Meteor.isClient) {
 
     Template.map.onCreated(function() {
         GoogleMaps.ready('map', function(map) {
-
-            
-
             Trucks.find().observe({
-                added: function(document) {
-                    // Create a marker for this document
-                    var marker = new google.maps.Marker({
-                        position: new google.maps.LatLng(document.lastLocation.coordinate.lat, document.lastLocation.coordinate.lng),
-                        map: map.instance,
-                        id: document.id,
-                        icon: "/img/red-dot.png"
-                    });
+                added: function(truck) {
+                    // console.log("add",truck,getNotFreeTrucksIds(),getNotFreeTrucksIds().indexOf(truck.id));
+                    if(getNotFreeTrucksIds().indexOf(truck.id) == -1 ){
+                        // Create a marker for this truck
+                        var marker = new google.maps.Marker({
+                            position: new google.maps.LatLng(truck.lastLocation.coordinate.lat, truck.lastLocation.coordinate.lng),
+                            map: map.instance,
+                            id: truck.id,
+                            icon: "/img/red-dot.png"
+                        });
 
-                    google.maps.event.addListener(marker, 'click', function() {
-                        Meteor.call("showDetails", marker.id);
-                    });
+                        google.maps.event.addListener(marker, 'click', function() {
+                            Meteor.call("showDetails", marker.id);
+                        });
 
-                    google.maps.event.addListener(marker, 'dblclick', function() {
-                        Meteor.call("endDayForTruck", marker.id);
-                    });
+                        google.maps.event.addListener(marker, 'dblclick', function() {
+                            Meteor.call("endDayForTruck", marker.id);
+                        });
 
-                    // Store this marker instance within the Markers object.
-                    Markers[document.id] = marker;
+                        // Store this marker instance within the Markers object.
+                        Markers[truck.id] = marker;
+                    }
                 },
 
-                changed: function(newDocument, oldDocument) {
-                    Markers[newDocument.id].setPosition({
-                        lat: newDocument.lat,
-                        lng: newDocument.lng
-                    });
+                changed: function(newTruck, oldTruck) {
+                    // console.log("up",newTruck,getNotFreeTrucksIds(),getNotFreeTrucksIds().indexOf(newTruck.id));
+                    if(getNotFreeTrucksIds().indexOf(newTruck.id) == -1 ){
+                        //TO-DO: the following line throw an error, but works if we execute a similar thing in chrome shell
+                        // Markers[newTruck.id].setPosition({
+                        //     lat: newTruck.lat,
+                        //     lng: newTruck.lng
+                        // });
+                    }else{
+                        this.removed(newTruck);
+                    }
                 },
 
-                removed: function(oldDocument) {
-                    // Remove the marker from the map
-                    Markers[oldDocument.id].setMap(null);
+                removed: function(oldTruck) {
+                    // console.log("rm",oldTruck,getNotFreeTrucksIds(),getNotFreeTrucksIds().indexOf(oldTruck.id));
+                    if(getNotFreeTrucksIds().indexOf(oldTruck.id) != -1 ){
+                        // Remove the marker from the map
+                        Markers[oldTruck.id].setMap(null);
 
-                    // Clear the event listener
-                    google.maps.event.clearInstanceListeners(Markers[oldDocument.id]);
+                        // Clear the event listener
+                        google.maps.event.clearInstanceListeners(Markers[oldTruck.id]);
 
-                    // Remove the reference to this marker instance
-                    delete Markers[oldDocument.id];
+                        // Remove the reference to this marker instance
+                        delete Markers[oldTruck.id];
+                    }
                 }
             });
 
@@ -74,8 +95,11 @@ if (Meteor.isClient) {
     Template.leftPart.helpers({
         trucks: function() {
             var ids = []
+            var todayMidnight = new Date().setHours(0,0,0,0);
+
             Jobs.find({truckId:{$ne:null}, completionTime:null},{truckId:1}).forEach(function(job){ids.push(job.truckId)});
-            console.log(ids);
+            Trucks.find({sentToHisBaseOn:{$gte: new Date(todayMidnight)}}).forEach(function(truck){ids.push(truck.id)});;
+
             return Trucks.find({id:{$nin:ids}});
         }
     });
@@ -211,9 +235,6 @@ if (Meteor.isClient) {
         endDayForTruck: function(truckId) {
             if(truckId != null){
                 var truck=Trucks.findOne({id: truckId});
-                console.log(truck);
-                Trucks.update({_id:truck._id},{$set:{sentToHisBaseOn:new Date()}});
-                console.log(Trucks.findOne({id: truckId}));
                 (new PNotify({
                     title: "Sending the truck #"+truck.name+" to his base",
                     text: "Are you sure you want to end the day for this truck ?",
@@ -221,6 +242,8 @@ if (Meteor.isClient) {
                         confirm: true
                     }
                 })).get().on('pnotify.confirm', function(){
+                    Trucks.update({_id:truck._id},{$set:{sentToHisBaseOn:new Date()}});
+
                     new PNotify({
                         title: "Success",
                         text: "The truck #"+truck.name+" has been sent to his base successfully",
