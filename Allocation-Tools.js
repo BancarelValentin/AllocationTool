@@ -98,6 +98,7 @@ if (Meteor.isClient) {
             var todayMidnight = new Date().setHours(0,0,0,0);
 
             Jobs.find({truckId:{$ne:null}, completionTime:null},{truckId:1}).forEach(function(job){ids.push(job.truckId)});
+
             Trucks.find({sentToHisBaseOn:{$gte: new Date(todayMidnight)}}).forEach(function(truck){ids.push(truck.id)});;
 
             return Trucks.find({id:{$nin:ids}});
@@ -125,10 +126,8 @@ if (Meteor.isClient) {
     })
 
     Template.jobItem.events({
-        "click .jobItem": function() {
-            if(arguments[0].altKey){
-                Meteor.call("allocateJob", this.id);
-            }
+        "dblclick .jobItem": function() {
+            Meteor.call("allocateJob", this.id);
         }
     })
 
@@ -164,13 +163,10 @@ if (Meteor.isClient) {
 
     Template.truckItem.events({
         "click .truckItem": function() {
-            if(arguments[0].altKey){
-                Meteor.call("endDayForTruck", this.id);
-            }else{
-                Meteor.call("showDetails", this.id);
-            }
+            Meteor.call("showDetails", this.id);
         },
         "dblclick .truckItem": function() {
+            Meteor.call("endDayForTruck", this.id);
         }
     });
 
@@ -257,27 +253,13 @@ if (Meteor.isClient) {
                     })
                 });
             }else{
-                (new PNotify({
-                    title: "Sending all truck to their base",
-                    text: "Are you sure you want to end the day for all trucks ?",
-                    confirm: {
-                        confirm: true
-                    }
-                })).get().on('pnotify.confirm', function(){
-                    new PNotify({
-                        title: "Success",
-                        text: "All trucks has been sent to their base successfully",
-                        type: 'success'
-                    })
-                }).on('pnotify.cancel', function(){
-                    new PNotify({
-                        title: "Info",
-                        text: "Aborted",
-                        type: 'info'
-                    })
+                new PNotify({
+                    title: 'end day for all truck',
+                    text: "don't forget to implement that",
+                    hide:false
                 });
-            }   
-        }   
+            }
+        }
     })
 
     function getSortedJobForTruck(truckId) {
@@ -328,6 +310,7 @@ if (Meteor.isClient) {
         
         return dist;
     }
+
 }
 
 
