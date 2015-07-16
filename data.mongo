@@ -14,7 +14,6 @@ db.trucks.insert({ id: 6, name: "TR006", registration: "", lastLocation: { type:
 db.trucks.insert({ id: 7, name: "TR007", registration: "", lastLocation: { type: "industrial estate", name: "Peterhead", coordinate: { lat: 57.506533, lng: -1.810923 } }, trailerId: 7, driverId:7, sentToHisBaseOn:new Date("2015-07-08 19:00:00")})
 db.trucks.insert({ id: 8, name: "TR008", registration: "", lastLocation: { type: "industrial estate", name: "Montrose", coordinate: { lat: 56.723470, lng: -2.465917 } }, trailerId: 8, driverId:8, sentToHisBaseOn:new Date("2015-07-08 19:00:00")})
 db.trucks.insert({ id: 9, name: "TR009", registration: "", lastLocation: { type: "quay", name: "Mearns Quay", coordinate: { lat: 57.146786, lng: -2.087952 } }, trailerId: 9, driverId:9, sentToHisBaseOn:new Date("2015-07-08 19:00:00")})
-
 db.trailers.insert({ id: 0, name: "TL000", type: "flat", lastLocation: { type: "industrial estate", name: "Peterhead", coordinate: { lat: 57.506533, lng: -1.810923 } } })
 db.trailers.insert({ id: 1, name: "TL001", type: "flat", lastLocation: { type: "quay", name: "Altens", coordinate: { lat: 57.110467, lng: -2.075417 } } })
 db.trailers.insert({ id: 2, name: "TL002", type: "flat", lastLocation: { type: "quay", name: "Torry Dock", coordinate: { lat: 57.138776, lng: -2.083637 } } })
@@ -25,7 +24,6 @@ db.trailers.insert({ id: 6, name: "TL006", type: "flat", lastLocation: { type: "
 db.trailers.insert({ id: 7, name: "TL007", type: "flat", lastLocation: { type: "quay", name: "Altens", coordinate: { lat: 57.110467, lng: -2.075417 } } })
 db.trailers.insert({ id: 8, name: "TL008", type: "flat", lastLocation: { type: "quay", name: "Altens", coordinate: { lat: 57.110467, lng: -2.075417 } } })
 db.trailers.insert({ id: 9, name: "TL009", type: "flat", lastLocation: { type: "quay", name: "Mearns Quay", coordinate: { lat: 57.146786, lng: -2.087952 } } })
-
 db.customers.insert({ id: 0, name: "Baker Atlas" })
 db.customers.insert({ id: 1, name: "Oceaneering" })
 db.customers.insert({ id: 2, name: "Sparrows" })
@@ -36,7 +34,6 @@ db.customers.insert({ id: 6, name: "Ferguson Sea Cabs" })
 db.customers.insert({ id: 7, name: "Balmoral" })
 db.customers.insert({ id: 8, name: "Northwards" })
 db.customers.insert({ id: 9, name: "Noble Drilling" })
-
 db.drivers.insert({
     id:0,
     adrLevel:000000000,
@@ -127,10 +124,6 @@ db.drivers.insert({
     employeeId:0,
     isAirportTraining:true
 })
-
-
-
-
 db.jobs.insert({
     id:0,
     needAdr:0011000001,
@@ -139,7 +132,7 @@ db.jobs.insert({
     allocationTime:new Date("2015-07-08 08:00:00"),
     cancellationTime:null,
     collectionTime:new Date("2015-07-08 09:53:23"),
-    completionTime:new Date("2015-07-08 10:45:55"),
+    completionTime:null,
     type:"inbound",
     specificTrailerID:null,
     trailerId:1,
