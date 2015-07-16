@@ -7,6 +7,105 @@ Markers = {};
 temp = {};
 
 
+var allocateJob = function (id) {
+    var job = Jobs.findOne({id: id});
+    var truck = Trucks.findOne({id:Session.get("selectedTruckID")});
+    var trailer = Trailers.findOne({id:truck.trailerId});
+    var askForConfirm = "Do you really want to allocate the job " + job.id + " to the truck " + truck.name;
+    var confirmText = 'The job ' + job.id + ' had been allocated to the truck: ' + truck.name;
+    if (trailer.id || trailer.id == 0) {
+        askForConfirm += " and the trailer " + trailer.name;
+        confirmText += ' with the trailer: ' + trailer.name;
+    }
+    askForConfirm += " ?";
+    confirmText += ".";
+    toto = (new PNotify({
+        title: 'Confirmation Needed',
+        text: askForConfirm,
+        icon: 'glyphicon glyphicon-question-sign',
+        hide: false,
+        confirm: {
+            confirm: true
+        },
+        buttons: {
+            closer: false,
+            sticker: false
+        },
+        history: {
+            history: false
+        }
+    })).get().on('pnotify.confirm', function() {
+        
+        Jobs.update({_id:job._id},{$set:{trailerId:trailer.id, allocationTime:new Date(), truckId:truck.id}})
+        new PNotify({
+            title: 'Allocated',
+            text: confirmText,
+            type: 'success'
+        });
+    }).on('pnotify.cancel', function() {
+        new PNotify({
+            title: 'Allocation cancelled',
+            type: 'error'
+        });
+    });
+}
+
+var showDetails = function(id) {
+    Session.set("selectedTruckID", id);
+    
+    if(Session.get("selectedID") || Session.get("selectedID") == 0)
+      if(Markers[Session.get("selectedID")]) 
+        Markers[Session.get("selectedID")].setIcon("/img/red-dot.png");
+    Markers[id].setIcon("/img/yellow-dot.png");
+    Session.set("selectedID",id);
+}
+
+var endDayForTruck = function(truckId) {
+    if(truckId != null){
+        var truck=Trucks.findOne({id: truckId});
+        (new PNotify({
+            title: "Sending the truck #"+truck.name+" to his base",
+            text: "Are you sure you want to end the day for this truck ?",
+            confirm: {
+                confirm: true
+            }
+        })).get().on('pnotify.confirm', function(){
+            Trucks.update({_id:truck._id},{$set:{sentToHisBaseOn:new Date()}});
+            new PNotify({
+                title: "Success",
+                text: "The truck #"+truck.name+" has been sent to his base successfully",
+                type: 'success'
+            })
+        }).on('pnotify.cancel', function(){
+            new PNotify({
+                title: "Info",
+                text: "Aborted",
+                type: 'info'
+            })
+        });
+    }else{
+        (new PNotify({
+            title: "Sending all truck to their base",
+            text: "Are you sure you want to end the day for all trucks ?",
+            confirm: {
+                confirm: true
+            }
+        })).get().on('pnotify.confirm', function(){
+            new PNotify({
+                title: "Success",
+                text: "All trucks has been sent to their base successfully",
+                type: 'success'
+            })
+        }).on('pnotify.cancel', function(){
+            new PNotify({
+                title: "Info",
+                text: "Aborted",
+                type: 'info'
+            })
+        });
+    }   
+}
+
 var getNotFreeTrucksIds = function() {
     var ids = [];
     var todayMidnight = new Date().setHours(0,0,0,0);
@@ -19,6 +118,22 @@ var getNotFreeTrucksIds = function() {
 if (Meteor.isClient) {
     Meteor.startup(function() {
         GoogleMaps.load();
+
+        Jobs.find().observe(
+        {
+          changed:function(newJob, oldJob){
+              if(oldJob.truckId != newJob.truckId)
+              {
+                  Markers[newJob.truckId].setMap(null);
+
+                  // Clear the event listener
+                  google.maps.event.clearInstanceListeners(Markers[newJob.truckId]);
+
+                  // Remove the reference to this marker instance
+                  delete Markers[newJob.truckId];
+              }
+          }
+        })
     });
     Template.map.helpers({
         mapOptions: function() {
@@ -46,11 +161,11 @@ if (Meteor.isClient) {
                         });
 
                         google.maps.event.addListener(marker, 'click', function() {
-                            Meteor.call("showDetails", marker.id);
+                            showDetails(marker.id);
                         });
 
                         google.maps.event.addListener(marker, 'dblclick', function() {
-                            Meteor.call("endDayForTruck", marker.id);
+                            endDayForTruck(marker.id);
                         });
 
                         // Store this marker instance within the Markers object.
@@ -115,7 +230,7 @@ if (Meteor.isClient) {
     Template.jobItem.events({
         "click .jobItem": function() {
             if(arguments[0].altKey){
-                Meteor.call("allocateJob", this.id);
+                allocateJob(this.id);
             }
         }
     })
@@ -149,9 +264,9 @@ if (Meteor.isClient) {
     Template.truckItem.events({
         "click .truckItem": function() {
             if(arguments[0].altKey){
-                Meteor.call("endDayForTruck", this.id);
+                endDayForTruck(this.id);
             }else{
-                Meteor.call("showDetails", this.id);
+                showDetails(this.id);
             }
         },
         "dblclick .truckItem": function() {
@@ -229,102 +344,3 @@ UI.registerHelper('formatTime', function(context, options) {
         return moment(context).fromNow();
 });
 
-if (Meteor.isServer || Meteor.isClient) {
-    Meteor.methods({
-        allocateJob: function (id) {
-            var job = Jobs.findOne({id: id});
-            var truck = Trucks.findOne({id:Session.get("selectedTruckID")});
-            var trailer = Trailers.findOne({id:truck.trailerId});
-            var askForConfirm = "Do you really want to allocate the job " + job.id + " to the truck " + truck.name;
-            var confirmText = 'The job ' + job.id + ' had been allocated to the truck: ' + truck.name;
-            if (trailer.id || trailer.id == 0) {
-                askForConfirm += " and the trailer " + trailer.name;
-                confirmText += ' with the trailer: ' + trailer.name;
-            }
-            askForConfirm += " ?";
-            confirmText += ".";
-            toto = (new PNotify({
-                title: 'Confirmation Needed',
-                text: askForConfirm,
-                icon: 'glyphicon glyphicon-question-sign',
-                hide: false,
-                confirm: {
-                    confirm: true
-                },
-                buttons: {
-                    closer: false,
-                    sticker: false
-                },
-                history: {
-                    history: false
-                }
-            })).get().on('pnotify.confirm', function() {
-                
-                Jobs.update({_id:job._id},{$set:{trailerId:trailer.id, allocationTime:new Date(), truckId:truck.id}})
-                new PNotify({
-                    title: 'Allocated',
-                    text: confirmText,
-                    type: 'success'
-                });
-            }).on('pnotify.cancel', function() {
-                new PNotify({
-                    title: 'Allocation cancelled',
-                    type: 'error'
-                });
-            });
-        },
-        showDetails: function(id) {
-            Session.set("selectedTruckID", id);
-            
-            if(Session.get("selectedID") || Session.get("selectedID") == 0)
-              Markers[Session.get("selectedID")].setIcon("/img/red-dot.png");
-            Markers[id].setIcon("/img/yellow-dot.png");
-            Session.set("selectedID",id);
-        },
-        endDayForTruck: function(truckId) {
-            if(truckId != null){
-                var truck=Trucks.findOne({id: truckId});
-                (new PNotify({
-                    title: "Sending the truck #"+truck.name+" to his base",
-                    text: "Are you sure you want to end the day for this truck ?",
-                    confirm: {
-                        confirm: true
-                    }
-                })).get().on('pnotify.confirm', function(){
-                    Trucks.update({_id:truck._id},{$set:{sentToHisBaseOn:new Date()}});
-                    new PNotify({
-                        title: "Success",
-                        text: "The truck #"+truck.name+" has been sent to his base successfully",
-                        type: 'success'
-                    })
-                }).on('pnotify.cancel', function(){
-                    new PNotify({
-                        title: "Info",
-                        text: "Aborted",
-                        type: 'info'
-                    })
-                });
-            }else{
-                (new PNotify({
-                    title: "Sending all truck to their base",
-                    text: "Are you sure you want to end the day for all trucks ?",
-                    confirm: {
-                        confirm: true
-                    }
-                })).get().on('pnotify.confirm', function(){
-                    new PNotify({
-                        title: "Success",
-                        text: "All trucks has been sent to their base successfully",
-                        type: 'success'
-                    })
-                }).on('pnotify.cancel', function(){
-                    new PNotify({
-                        title: "Info",
-                        text: "Aborted",
-                        type: 'info'
-                    })
-                });
-            }   
-        }   
-    })
-}
