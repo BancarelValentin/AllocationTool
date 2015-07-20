@@ -264,6 +264,9 @@ if (Meteor.isClient) {
                         confirm: true
                     }
                 })).get().on('pnotify.confirm', function(){
+                    Trucks.find().fetch().forEach(function (truck) {
+                        Trucks.update({_id:truck._id},{$set:{sentToHisBaseOn:new Date()}});
+                    })
                     new PNotify({
                         title: "Success",
                         text: "All trucks has been sent to their base successfully",
