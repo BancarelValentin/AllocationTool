@@ -6,6 +6,16 @@ Markers = {};
 
 temp = {};
 
+setInterval(function(){updateTrucksMarkers()}, 60000);
+
+
+ updateTrucksMarkers = function () {
+    Trucks.find().fetch().forEach(function (truck) {
+        if(Markers[truck.id]){
+            Markers[truck.id].setIcon(getIconPathForTruck(truck.id));
+        }
+    })
+}
 
 var allocateJob = function (id) {
     var job = Jobs.findOne({id: id});
@@ -19,7 +29,7 @@ var allocateJob = function (id) {
     }
     askForConfirm += " ?";
     confirmText += ".";
-    toto = (new PNotify({
+    (new PNotify({
         title: 'Confirmation Needed',
         text: askForConfirm,
         icon: 'glyphicon glyphicon-question-sign',
@@ -51,13 +61,31 @@ var allocateJob = function (id) {
 }
 
 var showDetails = function(id) {
-    Session.set("selectedTruckID", id);
+    // Session.set("selectedID", id);
     
     if(Session.get("selectedID") || Session.get("selectedID") == 0)
       if(Markers[Session.get("selectedID")]) 
         Markers[Session.get("selectedID")].setIcon("/img/red-dot.png");
-    Markers[id].setIcon("/img/yellow-dot.png");
     Session.set("selectedID",id);
+    Markers[id].setIcon(getIconPathForTruck(id));
+}
+
+var getIconPathForTruck = function(truckId){
+    if(Session.get("selectedID") || Session.get("selectedID") == 0){
+        if(Session.get("selectedID") == truckId){
+            return "/img/yellow-dot.png";
+        }
+    }
+
+    var truck = Trucks.findOne({id:truckId});
+    var path ="/img/red-dot.png";
+    var limit = new Date(new Date() - 15*60000);
+    var last = truck.outstandingSince;
+    if(last.getTime() > limit.getTime()){
+       return "/img/blue-dot.png";
+    }else{
+        return "/img/red-dot.png";
+    }
 }
 
 var endDayForTruck = function(truckId) {
@@ -154,13 +182,7 @@ if (Meteor.isClient) {
                     if(getNotFreeTrucksIds().indexOf(truck.id) == -1 ){
                         
                         //define if the truck is new or not
-                        var path ="/img/red-dot.png";
-                        var limit = new Date(new Date() - 15*60000);
-                        var last = truck.outstandingSince;
-                        console.log(limit.toLocaleString(), last.toLocaleString())
-                        if(last.getTime() > limit){
-                            path = "/img/blue-dot.png";
-                        }
+                        var path = getIconPathForTruck(truck.id);
 
                         // Create a marker for this truck
                         var marker = new google.maps.Marker({
@@ -281,115 +303,6 @@ if (Meteor.isClient) {
         "dblclick .truckItem": function() {
         }
     });
-
-    Meteor.methods({
-        allocateJob: function (id) {
-            var job = Jobs.findOne({id: id});
-            var truck = Trucks.findOne({id:Session.get("selectedTruckID")});
-            var trailer = Trailers.findOne({id:truck.trailerId});
-
-            var askForConfirm = "Do you really want to allocate the job " + job.id + " to the truck " + truck.name;
-            var confirmText = 'The job ' + job.id + ' had been allocated to the truck: ' + truck.name;
-
-            if (trailer.id || trailer.id == 0) {
-                askForConfirm += " and the trailer " + trailer.name;
-                confirmText += ' with the trailer: ' + trailer.name;
-            }
-            askForConfirm += " ?";
-            confirmText += ".";
-
-            toto = (new PNotify({
-                title: 'Confirmation Needed',
-                text: askForConfirm,
-                icon: 'glyphicon glyphicon-question-sign',
-                hide: false,
-                confirm: {
-                    confirm: true
-                },
-                buttons: {
-                    closer: false,
-                    sticker: false
-                },
-                history: {
-                    history: false
-                }
-            })).get().on('pnotify.confirm', function() {
-                
-                Jobs.update({_id:job._id},{$set:{trailerId:trailer.id, allocationTime:new Date(), truckId:truck.id}})
-
-                new PNotify({
-                    title: 'Allocated',
-                    text: confirmText,
-                    type: 'success'
-                });
-
-            }).on('pnotify.cancel', function() {
-                new PNotify({
-                    title: 'Allocation cancelled',
-                    type: 'error'
-                });
-            });
-
-        },
-        showDetails: function(id) {
-            Session.set("selectedTruckID", id);
-            
-            if(Session.get("selectedID") || Session.get("selectedID") == 0)
-              Markers[Session.get("selectedID")].setIcon("/img/red-dot.png");
-
-            Markers[id].setIcon("/img/yellow-dot.png");
-            Session.set("selectedID",id);
-        },
-        endDayForTruck: function(truckId) {
-            if(truckId != null){
-                var truck=Trucks.findOne({id: truckId});
-                (new PNotify({
-                    title: "Sending the truck #"+truck.name+" to his base",
-                    text: "Are you sure you want to end the day for this truck ?",
-                    confirm: {
-                        confirm: true
-                    }
-                })).get().on('pnotify.confirm', function(){
-                    Trucks.update({_id:truck._id},{$set:{sentToHisBaseOn:new Date()}});
-
-                    new PNotify({
-                        title: "Success",
-                        text: "The truck #"+truck.name+" has been sent to his base successfully",
-                        type: 'success'
-                    })
-                }).on('pnotify.cancel', function(){
-                    new PNotify({
-                        title: "Info",
-                        text: "Aborted",
-                        type: 'info'
-                    })
-                });
-            }else{
-                (new PNotify({
-                    title: "Sending all truck to their base",
-                    text: "Are you sure you want to end the day for all trucks ?",
-                    confirm: {
-                        confirm: true
-                    }
-                })).get().on('pnotify.confirm', function(){
-                    Trucks.find().fetch().forEach(function (truck) {
-                        Trucks.update({_id:truck._id},{$set:{sentToHisBaseOn:new Date()}});
-                    })
-                    new PNotify({
-                        title: "Success",
-                        text: "All trucks has been sent to their base successfully",
-                        type: 'success'
-                    })
-                }).on('pnotify.cancel', function(){
-                    new PNotify({
-                        title: "Info",
-                        text: "Aborted",
-                        type: 'info'
-                    })
-                });
-            }   
-        }   
-    })
 
     function getSortedJobForTruck(truckId) {
         var truck = Trucks.findOne({id: truckId})
