@@ -40,12 +40,22 @@ if (Meteor.isClient) {
                 added: function(truck) {
                     // console.log("add",truck,getNotFreeTrucksIds(),getNotFreeTrucksIds().indexOf(truck.id));
                     if(getNotFreeTrucksIds().indexOf(truck.id) == -1 ){
+                        
+                        //define if the truck is new or not
+                        var path ="/img/red-dot.png";
+                        var limit = new Date(new Date() - 15*60000);
+                        var last = truck.outstandingSince;
+                        console.log(limit.toLocaleString(), last.toLocaleString())
+                        if(last.getTime() > limit){
+                            path = "/img/blue-dot.png";
+                        }
+
                         // Create a marker for this truck
                         var marker = new google.maps.Marker({
                             position: new google.maps.LatLng(truck.lastLocation.coordinate.lat, truck.lastLocation.coordinate.lng),
                             map: map.instance,
                             id: truck.id,
-                            icon: "/img/red-dot.png"
+                            icon:path
                         });
 
                         google.maps.event.addListener(marker, 'click', function() {
@@ -62,13 +72,12 @@ if (Meteor.isClient) {
                 },
 
                 changed: function(newTruck, oldTruck) {
-                    // console.log("up",newTruck,getNotFreeTrucksIds(),getNotFreeTrucksIds().indexOf(newTruck.id));
                     if(getNotFreeTrucksIds().indexOf(newTruck.id) == -1 ){
                         //TO-DO: the following line throw an error, but works if we execute a similar thing in chrome shell
-                        // Markers[newTruck.id].setPosition({
-                        //     lat: newTruck.lat,
-                        //     lng: newTruck.lng
-                        // });
+                        Markers[newTruck.id].setPosition({
+                            lat: lastLocation.coordinates.lat,
+                            lng: lastLocation.coordinates.lng
+                        });
                     }else{
                         this.removed(newTruck);
                     }
