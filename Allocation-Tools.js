@@ -6,21 +6,6 @@ Markers = {};
 
 temp = {};
 
-// setInterval(function(){updateTrucksMarkers()}, 10000);
-
-
-  updateTrucksMarkers = function () {
-
-    var trucks = Trucks.find({_id: { $nin: getNotFreeTrucksIds()}}).fetch();
-    console.log(trucks)
-    trucks.forEach(function (truck) {
-        var newPath = getIconPathForTruck(truck._id);
-        if(Markers[truck._id]  && Markers[truck._id].icon != newPath){
-            Markers[truck._id].setIcon(newPath);
-        }
-    })
-}
-
 var allocateJob = function (_id) {
     var job = Jobs.findOne({_id: _id});
     var truck = Trucks.findOne({_id:Session.get("selectedID")});
@@ -205,6 +190,17 @@ var addMarker = function(id, map){
 
 
 if (Meteor.isClient) {
+
+    function updateTrucksMarkers () {
+        var trucks = Trucks.find({_id: { $nin: getNotFreeTrucksIds()}}).fetch();
+            trucks.forEach(function (truck) {
+                var newPath = getIconPathForTruck(truck._id);
+                if(Markers[truck._id]  && Markers[truck._id].icon != newPath){
+                    Markers[truck._id].setIcon(newPath);
+                }
+            })
+    }
+
     Meteor.startup(function() {
         GoogleMaps.load();
     });
@@ -220,6 +216,8 @@ if (Meteor.isClient) {
         }
     });
     Template.map.onCreated(function() {
+        Meteor.setInterval(function(){updateTrucksMarkers()}, 10000);
+
         GoogleMaps.ready('map', function(map) {
             Trucks.find().observe({
                 added: function(truck) {
