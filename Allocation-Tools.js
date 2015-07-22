@@ -6,13 +6,17 @@ Markers = {};
 
 temp = {};
 
-setInterval(function(){updateTrucksMarkers()}, 6000);
+// setInterval(function(){updateTrucksMarkers()}, 10000);
 
 
- updateTrucksMarkers = function () {
-    Trucks.find().fetch().forEach(function (truck) {
-        if(Markers[truck.id]){
-            Markers[truck.id].setIcon(getIconPathForTruck(truck._id));
+  updateTrucksMarkers = function () {
+
+    var trucks = Trucks.find({_id: { $nin: getNotFreeTrucksIds()}}).fetch();
+    console.log(trucks)
+    trucks.forEach(function (truck) {
+        var newPath = getIconPathForTruck(truck._id);
+        if(Markers[truck._id]  && Markers[truck._id].icon != newPath){
+            Markers[truck._id].setIcon(newPath);
         }
     })
 }
@@ -61,7 +65,8 @@ var allocateJob = function (_id) {
 }
 
 var showDetails = function(_id) {
-    
+    console.log(Trucks.findOne({_id : _id}));
+    console.log(Jobs.find({truckId : _id}).fetch());
     if(Session.get("selectedID")){
         var previousSelected = Session.get("selectedID");
     }
@@ -141,12 +146,21 @@ var endDayForTruck = function(truckId) {
     }   
 }
 
-var getNotFreeTrucksIds = function() {
+ var getNotFreeTrucksIds = function() {
     var ids = [];
     var todayMidnight = new Date().setHours(0,0,0,0);
     
-    Jobs.find({truckId:{$ne:null}, completionTime:null, cancellationTime:null}).forEach(function(job){ids.push(job.truckId.toJSONValue())});
-    Trucks.find({sentToHisBaseOn:{$gte: new Date(todayMidnight)}}).forEach(function(truck){ids.push(truck._id.toJSONValue())});
+    Jobs.find({truckId:{$ne:null}, completionTime:null, cancellationTime:null}).forEach(function(job){ids.push(job.truckId)});
+    Trucks.find({sentToHisBaseOn:{$gte: new Date(todayMidnight)}}).forEach(function(truck){ids.push(truck._id)});
+    return ids;
+}
+
+ var getNotFreeTrucksIdsJSON = function() {
+    var ids = [];
+    var todayMidnight = new Date().setHours(0,0,0,0);
+    
+    Jobs.find({truckId:{$ne:null}, completionTime:null, cancellationTime:null}).forEach(function(job){ids.push(JSON.stringify(job.truckId))});
+    Trucks.find({sentToHisBaseOn:{$gte: new Date(todayMidnight)}}).forEach(function(truck){ids.push(JSON.stringify(truck._id))});
     return ids;
 }
 
@@ -173,6 +187,9 @@ var addMarker = function(id, map){
         _id: truck._id,
         icon: path
     });
+
+    marker.setAnimation(google.maps.Animation.BOUNCE);
+    setTimeout(function(){marker.setAnimation(null)}, 3000);
 
     google.maps.event.addListener(marker, 'click', function() {
         showDetails(marker._id);
@@ -206,13 +223,13 @@ if (Meteor.isClient) {
         GoogleMaps.ready('map', function(map) {
             Trucks.find().observe({
                 added: function(truck) {
-                    if(getNotFreeTrucksIds().indexOf(truck._id.toJSONValue()) == -1 ){
+                    if(getNotFreeTrucksIdsJSON().indexOf(JSON.stringify(truck._id)) == -1 ){
                         addMarker(truck._id, map);
                     }
                 },
 
                 changed: function(newTruck, oldTruck) {
-                    if(getNotFreeTrucksIds().indexOf(newTruck._id.toJSONValue()) == -1 ){
+                    if(getNotFreeTrucksIdsJSON().indexOf(JSON.stringify(newTruck._id)) == -1 ){
                         Markers[newTruck._id].setPosition({ lat: newTruck.lastLocation.coordinate.lat, lng: newTruck.lastLocation.coordinate.lng });
                     }else{
                         deleteMarker(newTruck._id);
