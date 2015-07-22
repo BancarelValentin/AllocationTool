@@ -6,24 +6,24 @@ Markers = {};
 
 temp = {};
 
-setInterval(function(){updateTrucksMarkers()}, 60000);
+setInterval(function(){updateTrucksMarkers()}, 6000);
 
 
  updateTrucksMarkers = function () {
     Trucks.find().fetch().forEach(function (truck) {
         if(Markers[truck.id]){
-            Markers[truck.id].setIcon(getIconPathForTruck(truck.id));
+            Markers[truck.id].setIcon(getIconPathForTruck(truck._id));
         }
     })
 }
 
-var allocateJob = function (id) {
-    var job = Jobs.findOne({id: id});
-    var truck = Trucks.findOne({id:Session.get("selectedTruckID")});
-    var trailer = Trailers.findOne({id:truck.trailerId});
-    var askForConfirm = "Do you really want to allocate the job " + job.id + " to the truck " + truck.name;
-    var confirmText = 'The job ' + job.id + ' had been allocated to the truck: ' + truck.name;
-    if (trailer.id || trailer.id == 0) {
+var allocateJob = function (_id) {
+    var job = Jobs.findOne({_id: _id});
+    var truck = Trucks.findOne({_id:Session.get("selectedID")});
+    var trailer = Trailers.findOne({_id:truck.trailerId});
+    var askForConfirm = "Do you really want to allocate the job " + job._id + " to the truck " + truck.name;
+    var confirmText = 'The job ' + job._id + ' had been allocated to the truck: ' + truck.name;
+    if (trailer._id) {
         askForConfirm += " and the trailer " + trailer.name;
         confirmText += ' with the trailer: ' + trailer.name;
     }
@@ -46,7 +46,7 @@ var allocateJob = function (id) {
         }
     })).get().on('pnotify.confirm', function() {
         
-        Jobs.update({_id:job._id},{$set:{trailerId:trailer.id, allocationTime:new Date(), truckId:truck.id}})
+        Jobs.update({_id:job._id},{$set:{trailerId:trailer._id, allocationTime:new Date(), truckId:truck._id}})
         new PNotify({
             title: 'Allocated',
             text: confirmText,
@@ -60,24 +60,31 @@ var allocateJob = function (id) {
     });
 }
 
-var showDetails = function(id) {
-    // Session.set("selectedID", id);
+var showDetails = function(_id) {
     
-    if(Session.get("selectedID") || Session.get("selectedID") == 0)
-      if(Markers[Session.get("selectedID")]) 
-        Markers[Session.get("selectedID")].setIcon("/img/red-dot.png");
-    Session.set("selectedID",id);
-    Markers[id].setIcon(getIconPathForTruck(id));
+    if(Session.get("selectedID")){
+        var previousSelected = Session.get("selectedID");
+    }
+    
+    Session.set("selectedID",_id);
+
+    if(Markers[previousSelected]){
+        Markers[previousSelected].setIcon(getIconPathForTruck(previousSelected));
+        Markers[previousSelected].setZIndex();
+    }
+
+    Markers[_id].setIcon(getIconPathForTruck(_id));
+    Markers[_id].setZIndex(999999);
 }
 
 var getIconPathForTruck = function(truckId){
-    if(Session.get("selectedID") || Session.get("selectedID") == 0){
-        if(Session.get("selectedID") == truckId){
+    if(Session.get("selectedID")){
+        if(JSON.stringify(Session.get("selectedID")) == JSON.stringify(truckId)){
             return "/img/yellow-dot.png";
         }
     }
 
-    var truck = Trucks.findOne({id:truckId});
+    var truck = Trucks.findOne(truckId);
     var path ="/img/red-dot.png";
     var limit = new Date(new Date() - 15*60000);
     var last = truck.outstandingSince;
@@ -90,7 +97,7 @@ var getIconPathForTruck = function(truckId){
 
 var endDayForTruck = function(truckId) {
     if(truckId != null){
-        var truck=Trucks.findOne({id: truckId});
+        var truck=Trucks.findOne({_id: truckId});
         (new PNotify({
             title: "Sending the truck #"+truck.name+" to his base",
             text: "Are you sure you want to end the day for this truck ?",
@@ -138,30 +145,51 @@ var getNotFreeTrucksIds = function() {
     var ids = [];
     var todayMidnight = new Date().setHours(0,0,0,0);
     
-    Jobs.find({truckId:{$ne:null}, completionTime:null},{truckId:1}).forEach(function(job){ids.push(job.truckId)});
-    Trucks.find({sentToHisBaseOn:{$gte: new Date(todayMidnight)}}).forEach(function(truck){ids.push(truck.id)});
+    Jobs.find({truckId:{$ne:null}, completionTime:null, cancellationTime:null}).forEach(function(job){ids.push(job.truckId.toJSONValue())});
+    Trucks.find({sentToHisBaseOn:{$gte: new Date(todayMidnight)}}).forEach(function(truck){ids.push(truck._id.toJSONValue())});
     return ids;
 }
+
+
+var deleteMarker = function(id){
+    Markers[id].setMap(null);
+
+    // Clear the event listener
+    google.maps.event.clearInstanceListeners(Markers[id]);
+
+    // Remove the reference to this marker instance
+    delete Markers[id];
+}
+
+var addMarker = function(id, map){
+    var truck = Trucks.findOne({_id:id});
+
+    //define if the truck is new or not
+    var path = getIconPathForTruck(id);
+
+    var marker = new google.maps.Marker({
+        position: new google.maps.LatLng(truck.lastLocation.coordinate.lat, truck.lastLocation.coordinate.lng),
+        map: map.instance,
+        _id: truck._id,
+        icon: path
+    });
+
+    google.maps.event.addListener(marker, 'click', function() {
+        showDetails(marker._id);
+    });
+
+    google.maps.event.addListener(marker, 'dblclick', function() {
+        endDayForTruck(marker._id);
+    });
+
+    // Store this marker instance within the Markers object.
+    Markers[truck._id] = marker;
+}
+
 
 if (Meteor.isClient) {
     Meteor.startup(function() {
         GoogleMaps.load();
-
-        Jobs.find().observe(
-        {
-          changed:function(newJob, oldJob){
-              if(oldJob.truckId != newJob.truckId)
-              {
-                  Markers[newJob.truckId].setMap(null);
-
-                  // Clear the event listener
-                  google.maps.event.clearInstanceListeners(Markers[newJob.truckId]);
-
-                  // Remove the reference to this marker instance
-                  delete Markers[newJob.truckId];
-              }
-          }
-        })
     });
     Template.map.helpers({
         mapOptions: function() {
@@ -178,73 +206,70 @@ if (Meteor.isClient) {
         GoogleMaps.ready('map', function(map) {
             Trucks.find().observe({
                 added: function(truck) {
-                    // console.log("add",truck,getNotFreeTrucksIds(),getNotFreeTrucksIds().indexOf(truck.id));
-                    if(getNotFreeTrucksIds().indexOf(truck.id) == -1 ){
-                        
-                        //define if the truck is new or not
-                        var path = getIconPathForTruck(truck.id);
-
-                        // Create a marker for this truck
-                        var marker = new google.maps.Marker({
-                            position: new google.maps.LatLng(truck.lastLocation.coordinate.lat, truck.lastLocation.coordinate.lng),
-                            map: map.instance,
-                            id: truck.id,
-                            icon:path
-                        });
-
-                        google.maps.event.addListener(marker, 'click', function() {
-                            showDetails(marker.id);
-                        });
-
-                        google.maps.event.addListener(marker, 'dblclick', function() {
-                            endDayForTruck(marker.id);
-                        });
-
-                        // Store this marker instance within the Markers object.
-                        Markers[truck.id] = marker;
+                    if(getNotFreeTrucksIds().indexOf(truck._id.toJSONValue()) == -1 ){
+                        addMarker(truck._id, map);
                     }
                 },
 
                 changed: function(newTruck, oldTruck) {
-                    if(getNotFreeTrucksIds().indexOf(newTruck.id) == -1 ){
-                        Markers[newTruck.id].setPosition({ lat: newTruck.lastLocation.coordinate.lat, lng: newTruck.lastLocation.coordinate.lng });
+                    if(getNotFreeTrucksIds().indexOf(newTruck._id.toJSONValue()) == -1 ){
+                        Markers[newTruck._id].setPosition({ lat: newTruck.lastLocation.coordinate.lat, lng: newTruck.lastLocation.coordinate.lng });
                     }else{
-                        this.removed(newTruck);
+                        deleteMarker(newTruck._id);
                     }
                 },
 
                 removed: function(oldTruck) {
-                    // console.log("rm",oldTruck,getNotFreeTrucksIds(),getNotFreeTrucksIds().indexOf(oldTruck.id));
-                    if(getNotFreeTrucksIds().indexOf(oldTruck.id) != -1 ){
-                        // Remove the marker from the map
-                        Markers[oldTruck.id].setMap(null);
-
-                        // Clear the event listener
-                        google.maps.event.clearInstanceListeners(Markers[oldTruck.id]);
-
-                        // Remove the reference to this marker instance
-                        delete Markers[oldTruck.id];
-                    }
+                    deleteMarker(oldTruck._id);
                 }
             });
+            Jobs.find().observe(
+            {
+              changed:function(newJob, oldJob){
+                  if(JSON.stringify(oldJob.truckId) != JSON.stringify(newJob.truckId))
+                  {
+                      if(!oldJob.truckId){
+                            deleteMarker(newJob.truckId)
+                        }else if(!newJob.truckId){
+                            addMarker(oldJob.truckId, map);
+
+                        }else{
+                            deleteMarker(newJob.truckId);
+                            addMarker(oldJob.truckId, map);
+                        }
+                  }
+                  else if(oldJob.cancellationTime != newJob.cancellationTime){
+                    if(!oldJob.cancellationTime){
+                        addMarker(newJob.truckId, map);
+                    }else if(!newJob.cancellationTime){
+                        deleteMarker(oldJob.truckId);
+                    }
+                  }
+                  else if(!oldJob.completionTime && newJob.completionTime){
+                      addMarker(newJob.truckId, map);
+
+                  }
+
+              }
+            })            
         });
     });
     Template.leftPart.helpers({
         trucks: function() {
             var ids = []
             var todayMidnight = new Date().setHours(0,0,0,0);
-            Jobs.find({truckId:{$ne:null}, completionTime:null},{truckId:1}).forEach(function(job){ids.push(job.truckId)});
-            Trucks.find({sentToHisBaseOn:{$gte: new Date(todayMidnight)}}).forEach(function(truck){ids.push(truck.id)});;
+            Jobs.find({truckId:{$ne:null}, completionTime:null, cancellationTime:null},{truckId:1}).forEach(function(job){ids.push(job.truckId)});
+            Trucks.find({sentToHisBaseOn:{$gte: new Date(todayMidnight)}}).forEach(function(truck){ids.push(truck._id)});;
 
-            return Trucks.find({id:{$nin:ids}});
+            return Trucks.find({_id:{$nin:ids}});
         }
     });
     Template.jobItem.helpers({
         truck: function() {
-            return Trucks.findOne({id:this.truckId});
+            return Trucks.findOne({_id:this.truckId});
         },
         trailer: function() {    
-            return Trailers.findOne({id:this.trailerId});
+            return Trailers.findOne({_id:this.trailerId});
         },
         earliestStep: function() {
             return this.steps[0];
@@ -261,43 +286,43 @@ if (Meteor.isClient) {
     Template.jobItem.events({
         "click .jobItem": function() {
             if(arguments[0].altKey){
-                allocateJob(this.id);
+                allocateJob(this._id);
             }
         }
     })
     Template.rightPart.helpers({
         jobs: function() {
-            return (Session.get("selectedTruckID") || Session.get("selectedTruckID") == 0)?getSortedJobForTruck(Session.get("selectedTruckID")):[];
+            return Session.get("selectedID")?getSortedJobForTruck(Session.get("selectedID")):[];
         }
     });
     Template.selectedTruck.helpers({
         selectedTruck: function() {
-            return Trucks.findOne({id:Session.get("selectedTruckID")});
+            return Trucks.findOne({_id:Session.get("selectedID")});
         },
         driver: function() {
-            return Drivers.findOne({id:Trucks.findOne({id:Session.get("selectedTruckID")}).driverId});
+            return Drivers.findOne({_id:Trucks.findOne({_id:Session.get("selectedID")}).driverId});
         },
         trailer: function() {    
-            return Trailers.findOne({id:Trucks.findOne({id:Session.get("selectedTruckID")}).trailerId});
+            return Trailers.findOne({_id:Trucks.findOne({_id:Session.get("selectedID")}).trailerId});
         }
     });
     Template.truckItem.helpers({
         selected: function() {
-            return (Session.get("selectedTruckID") || Session.get("selectedTruckID") == 0) && this.id == Session.get("selectedTruckID");
+            return Session.get("selectedID") && this._id.toJSONValue() == Session.get("selectedID").toJSONValue();
         },
         driver: function() {
-            return Drivers.findOne({id:this.driverId});
+            return Drivers.findOne({_id:this.driverId});
         },
         trailer: function() {    
-            return Trailers.findOne({id:this.trailerId});
+            return Trailers.findOne({_id:this.trailerId});
         }
     });
     Template.truckItem.events({
         "click .truckItem": function() {
             if(arguments[0].altKey){
-                endDayForTruck(this.id);
+                endDayForTruck(this._id);
             }else{
-                showDetails(this.id);
+                showDetails(this._id);
             }
         },
         "dblclick .truckItem": function() {
@@ -305,12 +330,12 @@ if (Meteor.isClient) {
     });
 
     function getSortedJobForTruck(truckId) {
-        var truck = Trucks.findOne({id: truckId})
-        var recommendedJobs = Jobs.find({recommendedTruck:truck.id}).fetch();
+        var truck = Trucks.findOne({_id: truckId})
+        var recommendedJobs = Jobs.find({recommendedTruck:truck._id}).fetch();
         var outstandingJobs = Jobs.find({allocationTime:null}).fetch();
         outstandingJobs.forEach(function(job) {
             recommendedJobs.forEach(function(jobR) {
-                if (jobR.id == job.id) {
+                if (jobR._id.toJSONValue() == job._id.toJSONValue()) {
                     job.isRecommended = true;
                 }
             });

@@ -1,9 +1,5 @@
 <head>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pnotify/2.0.0/pnotify.all.min.js"></script>
-    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/pnotify/2.0.0/pnotify.all.min.css">
     <title>Allocation-tool</title>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pnotify/2.0.0/pnotify.all.js"></script>
-    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/pnotify/2.0.0/pnotify.all.css">
 </head>
 
 <body>
@@ -52,12 +48,10 @@
 
 <template name="truckItem">
     <li class="truckItem {{#if selected}}selected{{/if}}">
-        <h3>{{id}}</h3>
         <span><b>Truck : </b>{{name}}</span>
         <span><b>Location : </b>{{lastLocation.name}}</span>
         <span><b>Driver : </b>{{driver.firstName}} {{driver.lastName}}</span>
         <span><b>Trailer : </b>{{trailer.name}}</span>
-        <span>Date: {{sentToHisBaseOn}}</span>
     </li>
 </template>
 
@@ -71,7 +65,6 @@
 
 <template name="selectedTruck">
     {{#if selectedTruck}}
-    <h3>{{selectedTruck.id}}</h3>
     <span><b>Truck : </b>{{selectedTruck.name}}</span>
     <span><b>Location : </b>{{selectedTruck.lastLocation.name}}</span>
     <span><b>Driver : </b>{{driver.firstName}} {{driver.lastName}}</span>
@@ -85,7 +78,6 @@
          {{/if}}
         <b>{{type}}</b>
 
-        <h3>Job ID: {{id}}</h3>
          {{#if isRefSet}}<span><b> ARRC ref: </b>{{referenceNumber}}</span> {{/if}}
         <span>{{distance}} Km from truck position</span>
 
